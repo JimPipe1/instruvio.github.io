@@ -1,0 +1,98 @@
+---
+/** Numbered stages. { type: 'process' } in src/site.config.ts. */
+interface Props {
+  title: string;
+  intro?: string;
+  steps: { title: string; body: string }[];
+}
+
+const { title, intro, steps } = Astro.props;
+---
+
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <h2>{title}</h2>
+      {intro && <p>{intro}</p>}
+    </div>
+
+    <ol class="process">
+      {
+        steps.map((step, index) => (
+          <li class="process__step">
+            <span class="process__number">{String(index + 1).padStart(2, '0')}</span>
+            <h3 class="process__title">{step.title}</h3>
+            <p class="process__body">{step.body}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  .process {
+    display: grid;
+    gap: var(--space-xl);
+    grid-template-columns: 1fr;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: step;
+  }
+
+  /* Two across on a tablet, all four in a row on a laptop. */
+  @media (min-width: 40rem) {
+    .process {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .process {
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-lg);
+    }
+  }
+
+  .process__step {
+    padding-top: var(--space-lg);
+    /* The rule across the top acts as a progress bar through the stages. */
+    border-top: 2px solid var(--border-strong);
+  }
+
+  /* The stages walk along the logo's own gradient: amber into crimson into
+     magenta, then the deep plum of its shadowed facet. */
+  .process__step:nth-child(4n + 1) {
+    border-top-color: var(--amber);
+  }
+  .process__step:nth-child(4n + 2) {
+    border-top-color: var(--crimson);
+  }
+  .process__step:nth-child(4n + 3) {
+    border-top-color: var(--magenta);
+  }
+  .process__step:nth-child(4n + 4) {
+    border-top-color: var(--plum);
+  }
+
+  .process__number {
+    display: block;
+    margin-bottom: var(--space-sm);
+    color: var(--accent);
+    font-family: var(--font-heading);
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+  }
+
+  .process__title {
+    font-size: var(--step-1);
+  }
+
+  .process__body {
+    margin-top: var(--space-sm);
+    color: var(--text-muted);
+    font-size: var(--step--1);
+  }
+</style>

@@ -1,0 +1,59 @@
+---
+/**
+ * Inline SVG icons, drawn on a 24×24 grid with a 1.6px stroke.
+ *
+ * To add one: draw it on the same grid, add it to the `paths` object below,
+ * then use its key as the `icon:` value in a capability's frontmatter.
+ */
+interface Props {
+  name: string;
+  size?: number;
+  class?: string;
+}
+
+const { name, size = 24, class: className } = Astro.props;
+
+const paths: Record<string, string> = {
+  // Play button in a frame — explainer videos
+  play: 'M3 5h18v14H3zM10 9v6l5-3z',
+  // Graduation cap — CPD, training and education
+  cap: 'M12 4 2 9l10 5 10-5zM6 11v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5M22 9v6',
+  // Monitor — SaaS onboarding and UI demos
+  screen: 'M3 4.5h18v12H3zM8.5 20.5h7M12 16.5v4',
+  // Microphone — script and voiceover
+  mic: 'M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3zM5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7',
+  // CC box — captions and accessibility
+  captions: 'M3 5h18v14H3zM10.5 10.2a2.5 2.5 0 1 0 0 3.6M17 10.2a2.5 2.5 0 1 0 0 3.6',
+  // Film strip — animation and motion work
+  film: 'M3 5.5h18v13H3zM7 5.5v13M17 5.5v13M3 12h18M3 8.75h4M3 15.25h4M17 8.75h4M17 15.25h4',
+  // Picture frame — still renders
+  image: 'M3 5h18v14H3zM3 15l4.5-4.5 5 5M14 12l2.5-2.5L21 14M15.5 8.5h.01',
+  // Stacked sheets — layers and build-ups
+  layers: 'M12 3.5 3 8l9 4.5L21 8zM3 12.5 12 17l9-4.5M3 16.5 12 21l9-4.5',
+  // Isometric box — 3D modelling
+  cube: 'M12 2.8 20.5 7.4v9.2L12 21.2 3.5 16.6V7.4zM3.5 7.4 12 12l8.5-4.6M12 12v9.2',
+  // Ruler — measured, to-spec drawings
+  ruler: 'M4.5 14.5 14.5 4.5l5 5-10 10zM7.5 11.5l2 2M10.5 8.5l2 2M13.5 5.5l2 2',
+  // Compass — planning and survey
+  compass: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM15.5 8.5l-2 5-5 2 2-5z',
+};
+
+// An unknown icon name falls back to the cube rather than breaking the build.
+const d = paths[name] ?? paths.cube;
+---
+
+<svg
+  class={className}
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.6"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  focusable="false"
+>
+  <path d={d}></path>
+</svg>

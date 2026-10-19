@@ -1,0 +1,98 @@
+---
+/**
+ * ILLUSTRATIONS FOR THE TRAINING MODULES
+ *
+ * Renders one scene on a 480 × 320 grid, or a real image when `src` is set.
+ *
+ *   The drawing tools .... src/lib/training/illustration-kit.ts
+ *   Manual handling ...... src/lib/training/scenes-manual-handling.ts
+ *   Cutting carbon ....... src/lib/training/scenes-carbon.ts
+ *   RainSafe install ..... src/lib/training/scenes-rainsafe.ts
+ *
+ * To add a scene, add an entry to one of the scene files and use its key as
+ * the `graphic` value of a slide. An unknown key falls back to a plain
+ * backdrop rather than breaking the build.
+ */
+import { withBase } from '../../lib/content.ts';
+import { backdrop } from '../../lib/training/illustration-kit.ts';
+import { SCENES as MANUAL_HANDLING } from '../../lib/training/scenes-manual-handling.ts';
+import { SCENES as CARBON } from '../../lib/training/scenes-carbon.ts';
+import { SCENES as RAINSAFE } from '../../lib/training/scenes-rainsafe.ts';
+
+interface Props {
+  /** Scene name, used when there is no photo yet. */
+  name: string;
+  /** Path to a real image in public/, e.g. '/media/training/01-welcome.jpg'. */
+  src?: string;
+  alt: string;
+  class?: string;
+}
+
+const { name, src, alt, class: className } = Astro.props;
+
+const SCENES: Record<string, string> = { ...MANUAL_HANDLING, ...CARBON, ...RAINSAFE };
+
+const scene = SCENES[name] ?? backdrop();
+---
+<figure class:list={['illus', src && 'illus--photo', className]}>
+  {
+    src ? (
+      <img src={withBase(src)} alt={alt} loading="lazy" decoding="async" />
+    ) : (
+      <svg viewBox="0 0 480 320" role="img" aria-label={alt} preserveAspectRatio="xMidYMid meet">
+        <Fragment set:html={scene} />
+      </svg>
+    )
+  }
+</figure>
+
+<style>
+  .illus {
+    margin: 0;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    /* The artwork is drawn and photographed for a light page, so each picture
+       keeps its own pale mount and reads as something hung on the dark page
+       rather than cut into it. */
+    background: #e7e8ea;
+    line-height: 0;
+  }
+
+  .illus svg,
+  .illus img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  /*
+   * Photos are not all the same shape: some slides have a 3:2 picture, others
+   * a square one. Rather than crop every photo into a fixed 3:2 frame — which
+   * cut the top and bottom off the square ones — the frame takes the shape of
+   * its own picture.
+   *
+   * A landscape photo still fills the column exactly as before. A square one
+   * is shown whole and centred, with the frame drawn around it rather than
+   * around empty space, and `max-height` stops it towering over the words
+   * beside it on a wide screen.
+   *
+   * The drawn scenes are untouched: they are already the right shape and
+   * still span the full column.
+   */
+  .illus--photo {
+    width: fit-content;
+    max-width: 100%;
+    /* Holds a sensible band of space until the file arrives. */
+    min-height: 14rem;
+    margin-inline: auto;
+  }
+
+  .illus--photo img {
+    width: auto;
+    max-width: 100%;
+    max-height: 30rem;
+    aspect-ratio: auto;
+    object-fit: contain;
+  }
+</style>

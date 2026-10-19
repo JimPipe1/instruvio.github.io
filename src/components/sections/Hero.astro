@@ -1,0 +1,257 @@
+---
+/**
+ * Full-bleed opening section. Driven by the { type: 'hero' } block in
+ * src/site.config.ts.
+ */
+import MediaFrame from '../MediaFrame.astro';
+import { withBase } from '../../lib/content.ts';
+import type { Link } from '../../site.config.ts';
+
+interface Props {
+  eyebrow?: string;
+  title: string;
+  body?: string;
+  primaryCta?: Link;
+  secondaryCta?: Link;
+  poster?: string;
+  video?: string;
+}
+
+const { eyebrow, title, body, primaryCta, secondaryCta, poster, video } = Astro.props;
+---
+
+<section class="hero">
+  {
+    poster && (
+      <div class="hero__bg">
+        <MediaFrame
+          image={poster}
+          video={video}
+          alt=""
+          ratio="16 / 9"
+          mode={video ? 'once' : 'still'}
+          loading="eager"
+          class="hero__media"
+        />
+      </div>
+    )
+  }
+
+  <div class="container hero__inner">
+    {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+    <h1 class="hero__title">{title}</h1>
+    {body && <p class="hero__body">{body}</p>}
+
+    {
+      (primaryCta || secondaryCta) && (
+        <div class="hero__actions">
+          {primaryCta && (
+            <a class="btn" href={withBase(primaryCta.href)}>
+              {primaryCta.label}
+            </a>
+          )}
+          {secondaryCta && (
+            <a class="btn btn--secondary" href={withBase(secondaryCta.href)}>
+              {secondaryCta.label}
+            </a>
+          )}
+        </div>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    /* Tall enough to feel like an opening statement, but never taller than
+       the screen — `svh` accounts for mobile browser toolbars. */
+    min-height: min(42rem, 88svh);
+    padding-block: var(--space-3xl);
+    overflow: hidden;
+    background: var(--bg-sunken);
+  }
+
+  .hero__bg {
+    position: absolute;
+    inset: 0;
+  }
+
+  /*
+   * The media is taller than the frame that holds it, and sits above and
+   * below it, so there is room to drift without ever uncovering an edge.
+   * --hero-parallax is set in pixels by the script at the foot of this file;
+   * with none set it is 0 and the hero is simply a still backdrop.
+   */
+  .hero__bg :global(.hero__media) {
+    position: absolute;
+    inset: -20% 0;
+    width: 100%;
+    height: 140%;
+    /* Override the component's own aspect-ratio: here it must fill the box. */
+    aspect-ratio: auto;
+    border-radius: 0;
+    transform: translate3d(0, calc(var(--hero-parallax, 0) * 1px), 0);
+    will-change: transform;
+  }
+
+  /* Someone who has asked their system for less motion gets the still. */
+  @media (prefers-reduced-motion: reduce) {
+    .hero__bg :global(.hero__media) {
+      transform: none;
+    }
+  }
+
+  /* ---------------------------------------------------------------------
+     How the clip is framed inside the hero.
+
+     The hero box is much wider than the 16:9 footage, so something is always
+     cropped. Four knobs decide what, and they are the only things to touch if
+     the framing needs adjusting for a new clip:
+
+       --hero-media-y     0% holds the TOP of the frame, so the picture sits
+                          lower in the box and you see the top of the shot
+                          rather than a slice out of its middle. 50% centres.
+       --hero-media-x     which slice shows when the box is tall enough to crop
+                          sideways (phones, tablets). Below 50% the subject
+                          moves right, out from behind the headline.
+       --hero-media-zoom  on a wide screen the footage already spans the full
+                          width, so there is no sideways slack to crop and the
+                          picture has to be enlarged a little before it can be
+                          moved at all.
+       --hero-media-nudge how far right to push it, as a share of its width.
+     --------------------------------------------------------------------- */
+  /* These four values are a plain centre crop — the framing the site started
+     with. Change them here and the whole hero reframes; nothing else needs
+     touching. */
+  .hero__bg {
+    --hero-media-x: 50%;
+    --hero-media-y: 50%;
+    --hero-media-zoom: 1;
+    --hero-media-nudge: 0%;
+  }
+
+  /* For reference, this is the framing that drops the picture to show the top
+     of the shot and pushes it clear of the headline on a wide screen. Remove
+     the comment markers around it to switch it on.
+
+  .hero__bg {
+    --hero-media-x: 38%;
+    --hero-media-y: 0%;
+  }
+
+  @media (min-width: 75rem) {
+    .hero__bg {
+      --hero-media-zoom: 1.2;
+      --hero-media-nudge: 11%;
+    }
+  }
+  */
+
+  /* The poster image gets the same treatment as the video, so there is no jump
+     when one takes over from the other. */
+  .hero__bg :global(.media__img),
+  .hero__bg :global(.media__video) {
+    object-position: var(--hero-media-x) var(--hero-media-y);
+    transform: scale(var(--hero-media-zoom)) translateX(var(--hero-media-nudge));
+  }
+
+  /* Wash the media with black so the light text stays readable over it.
+     The left fade carries the headline and clears by 62%, so the picture
+     itself stays visible. A light, high-key clip needs a heavier wash — raise
+     the percentages if you swap one in. */
+  .hero__bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to top, var(--bg) 1%, rgb(0 0 0 / 45%) 40%, rgb(0 0 0 / 15%) 100%),
+      linear-gradient(to right, rgb(0 0 0 / 88%) 0%, rgb(0 0 0 / 55%) 38%, transparent 62%);
+  }
+
+  .hero__inner {
+    position: relative; /* sit above the white wash */
+    z-index: 1;
+  }
+
+  .hero__title {
+    max-width: 18ch;
+    font-size: var(--step-5);
+  }
+
+  .hero__body {
+    max-width: 46ch;
+    margin-top: var(--space-lg);
+    color: var(--text-muted);
+    font-size: var(--step-1);
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-md);
+    margin-top: var(--space-xl);
+  }
+
+  /* On a narrow phone, buttons go full width and stack — much easier to tap. */
+  @media (max-width: 26rem) {
+    .hero__actions :global(.btn) {
+      width: 100%;
+    }
+  }
+</style>
+
+<script>
+  /**
+   * Hero parallax.
+   *
+   * The backdrop travels at a fraction of the page's own speed, so the
+   * headline appears to slide over it rather than with it. Everything else on
+   * the page — including the white wash that keeps the headline readable —
+   * stays put, because only the media itself is moved.
+   *
+   * Three things keep it cheap and well-behaved:
+   *   - the work happens inside requestAnimationFrame, never in the scroll
+   *     event itself, so a fast scroll cannot queue up a pile of layout reads;
+   *   - an IntersectionObserver stops the maths entirely once the hero has
+   *     scrolled away;
+   *   - nothing runs at all for a visitor who prefers reduced motion, and
+   *     nothing runs without JavaScript, where the hero is simply still.
+   */
+  const hero = document.querySelector<HTMLElement>('.hero');
+  const stillness = matchMedia('(prefers-reduced-motion: reduce)');
+
+  if (hero && !stillness.matches) {
+    /* How far the backdrop lags the page: 0 is pinned to the page, 1 would
+       hold it completely still. A quarter is enough to feel without the
+       picture visibly sliding. */
+    const DEPTH = 0.25;
+
+    let queued = false;
+    let onScreen = true;
+
+    const draw = () => {
+      queued = false;
+      /* Capped at the hero's own height: past that it is out of sight, and
+         letting the number grow would drift the picture off its frame. */
+      const travelled = Math.min(window.scrollY, hero.offsetHeight);
+      hero.style.setProperty('--hero-parallax', String(travelled * DEPTH));
+    };
+
+    const onScroll = () => {
+      if (queued || !onScreen) return;
+      queued = true;
+      requestAnimationFrame(draw);
+    };
+
+    new IntersectionObserver((entries) => {
+      onScreen = entries[0].isIntersecting;
+      if (onScreen) onScroll();
+    }).observe(hero);
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    draw();
+  }
+</script>

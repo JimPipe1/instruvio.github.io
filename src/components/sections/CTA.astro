@@ -1,0 +1,78 @@
+---
+/** Closing call to action. { type: 'cta' } in src/site.config.ts. */
+import { withBase } from '../../lib/content.ts';
+import type { Link } from '../../site.config.ts';
+
+interface Props {
+  title: string;
+  body?: string;
+  button: Link;
+}
+
+const { title, body, button } = Astro.props;
+---
+
+<section class="section">
+  <div class="container">
+    <div class="cta">
+      <div class="cta__text">
+        <h2 class="cta__title">{title}</h2>
+        {body && <p class="cta__body">{body}</p>}
+      </div>
+      <a class="btn cta__button" href={withBase(button.href)}>{button.label}</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-xl);
+    padding: var(--space-3xl) var(--gutter);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    /* A radiant wash of coral and amber, lit from the top right like the logo
+       itself. The percentages are lower than they look because the palette is
+       light: where the two gradients overlap they lift the panel, and at 42%
+       and 26% the light text over them fell to 4.75:1. At 30% and 18% the
+       glow still reads and the text is back to 7.43:1. */
+    background:
+      radial-gradient(
+        120% 140% at 100% 0%,
+        color-mix(in srgb, var(--crimson) 30%, transparent) 0%,
+        transparent 55%
+      ),
+      radial-gradient(
+        90% 120% at 70% 100%,
+        color-mix(in srgb, var(--amber) 18%, transparent) 0%,
+        transparent 60%
+      ),
+      var(--bg-raised);
+  }
+
+  @media (min-width: 56rem) {
+    .cta {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-2xl);
+    }
+  }
+
+  .cta__title {
+    max-width: 20ch;
+    font-size: var(--step-3);
+  }
+
+  .cta__body {
+    max-width: 48ch;
+    margin-top: var(--space-md);
+    color: var(--text-muted);
+  }
+
+  .cta__button {
+    flex-shrink: 0;
+  }
+</style>

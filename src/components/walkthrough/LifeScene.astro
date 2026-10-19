@@ -1,0 +1,62 @@
+---
+/**
+ * The tall illustration beside a walkthrough step: the person doing whatever
+ * the step describes. Scenes live in src/lib/walkthrough/scenes-pacsana.ts.
+ *
+ * The SVG fills its column, cropping top and bottom as the column gets taller,
+ * so the panel can run the full height of the module on a wide screen.
+ */
+import { withBase } from '../../lib/content.ts';
+import { LIFE_SCENES } from '../../lib/walkthrough/scenes-pacsana.ts';
+
+interface Props {
+  /** Drawn scene name, used when there is no image file yet. */
+  name: string;
+  /** Illustration file, e.g. '/media/walkthrough/04-sleeping.jpg'. */
+  src?: string;
+  alt: string;
+  class?: string;
+}
+
+const { name, src, alt, class: className } = Astro.props;
+const scene = LIFE_SCENES[name] ?? '';
+---
+
+<figure class:list={['life', className]}>
+  {
+    src ? (
+      <img src={withBase(src)} alt={alt} width="1200" height="2400" loading="lazy" decoding="async" />
+    ) : (
+      <svg viewBox="0 0 320 640" role="img" aria-label={alt} preserveAspectRatio="xMidYMid slice">
+        <Fragment set:html={scene} />
+      </svg>
+    )
+  }
+</figure>
+
+<style>
+  .life {
+    margin: 0;
+    height: 100%;
+    min-height: 16rem;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--bg-raised);
+    line-height: 0;
+  }
+
+  .life svg,
+  .life img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: inherit;
+  }
+
+  /* The image fills the panel the same way the drawn scene does. */
+  .life img {
+    object-fit: cover;
+    object-position: center;
+  }
+</style>

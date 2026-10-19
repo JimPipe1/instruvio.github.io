@@ -1,0 +1,302 @@
+---
+/**
+ * Sticky site header.
+ *
+ * Laptop  — logo, inline nav, call-to-action button.
+ * Tablet  — same, with tighter spacing.
+ * Mobile  — logo and a menu button that opens a full-height drawer.
+ *
+ * Links come from getNavItems(), which merges the fixed NAV list in
+ * site.config.ts with any Markdown page that set `nav: true`.
+ */
+import { SITE, HEADER_CTA } from '../site.config.ts';
+import { getNavItems, isCurrent, withBase } from '../lib/content.ts';
+
+const navItems = await getNavItems();
+const pathname = Astro.url.pathname;
+---
+
+<header class="header">
+  <div class="container header__inner">
+    <a class="brand" href={withBase('/')}>
+      <img
+        class="brand__mark"
+        src={withBase('/media/instruvio-logo.png')}
+        alt=""
+        width="236"
+        height="256"
+      />
+      <span class="brand__name">{SITE.name}</span>
+    </a>
+
+    <button
+      class="menu-toggle"
+      type="button"
+      aria-expanded="false"
+      aria-controls="site-nav"
+      aria-label="Open menu"
+    >
+      <span class="menu-toggle__bar"></span>
+      <span class="menu-toggle__bar"></span>
+      <span class="menu-toggle__bar"></span>
+    </button>
+
+    <nav class="nav" id="site-nav" aria-label="Main">
+      <ul class="nav__list">
+        {
+          navItems.map((item) => (
+            <li>
+              <a
+                class="nav__link"
+                href={withBase(item.href)}
+                aria-current={isCurrent(item.href, pathname) ? 'page' : undefined}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <a class="btn nav__cta" href={withBase(HEADER_CTA.href)}>{HEADER_CTA.label}</a>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /**
+   * The frosted bar is a pseudo-element rather than a background on .header
+   * itself, and deliberately so: an element with `backdrop-filter` becomes the
+   * containing block for any `position: fixed` descendant. With the filter on
+   * .header, the mobile drawer's `inset: 0` would resolve against the 64px
+   * header instead of the viewport, and the menu would open into a sliver.
+   */
+  .header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    /* Solid-ish colour first, so the bar still reads without blur support. */
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(12px);
+  }
+
+  .header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-lg);
+    min-height: var(--header-height);
+  }
+
+  /* ---------------------------------------------------------------- brand */
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-family: var(--font-heading);
+    font-size: var(--step-1);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    /* Keeps the logo above the drawer overlay while the menu is open. */
+    position: relative;
+    z-index: 2;
+  }
+
+  .brand:hover {
+    color: var(--text);
+  }
+
+  /*
+   * The logo sits beside the wordmark and is sized in `em`, so it tracks the
+   * brand's own font size: it stays in proportion at every breakpoint, and
+   * changing `.brand`'s font-size moves both together. Raise or lower the
+   * 1.5em to make the mark bigger or smaller against the name.
+   */
+  .brand__mark {
+    height: 1.5em;
+    width: auto;
+    /* The file carries its own transparency, so nothing is drawn behind it. */
+    flex: none;
+  }
+
+  /* ------------------------------------------------------ menu button */
+
+  .menu-toggle {
+    display: grid;
+    place-content: center;
+    gap: 5px;
+    width: 2.75rem;
+    height: 2.75rem;
+    margin-right: calc(var(--space-sm) * -1);
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    position: relative;
+    z-index: 2;
+  }
+
+  .menu-toggle__bar {
+    width: 22px;
+    height: 2px;
+    background: var(--text);
+    transition:
+      transform var(--transition),
+      opacity var(--transition);
+  }
+
+  /* Morph the three bars into a cross while the drawer is open. */
+  .menu-toggle[aria-expanded='true'] .menu-toggle__bar:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+  .menu-toggle[aria-expanded='true'] .menu-toggle__bar:nth-child(2) {
+    opacity: 0;
+  }
+  .menu-toggle[aria-expanded='true'] .menu-toggle__bar:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+  }
+
+  /* ------------------------------------------------ mobile: the drawer */
+
+  .nav {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--space-xl);
+    padding: var(--header-height) var(--gutter) var(--space-2xl);
+    background: var(--bg);
+    /* Hidden from sight AND from the keyboard/screen reader until opened. */
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(-8px);
+    transition:
+      opacity var(--transition),
+      transform var(--transition),
+      visibility var(--transition);
+  }
+
+  .nav.is-open {
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .nav__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .nav__link {
+    display: block;
+    padding-block: var(--space-xs);
+    font-family: var(--font-heading);
+    font-size: var(--step-3);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .nav__link[aria-current='page'] {
+    color: var(--accent);
+  }
+
+  .nav__cta {
+    align-self: flex-start;
+  }
+
+  /* --------------------------------------- tablet and up: inline nav */
+
+  @media (min-width: 56rem) {
+    .menu-toggle {
+      display: none;
+    }
+
+    .nav {
+      position: static;
+      flex-direction: row;
+      align-items: center;
+      gap: var(--space-xl);
+      padding: 0;
+      background: none;
+      visibility: visible;
+      opacity: 1;
+      transform: none;
+    }
+
+    .nav__list {
+      flex-direction: row;
+      align-items: center;
+      gap: var(--space-xl);
+    }
+
+    .nav__link {
+      padding-block: 0;
+      font-size: var(--step-0);
+      color: var(--text-muted);
+    }
+
+    .nav__link:hover,
+    .nav__link[aria-current='page'] {
+      color: var(--text);
+    }
+
+    /* Underline the current page rather than colouring it, which reads more
+       clearly at this smaller size. */
+    .nav__link[aria-current='page'] {
+      text-decoration: underline;
+      text-decoration-color: var(--accent);
+      text-decoration-thickness: 2px;
+      text-underline-offset: 0.4em;
+    }
+  }
+</style>
+
+<script>
+  // Mobile drawer. Kept deliberately small: no framework, no dependencies.
+  const toggle = document.querySelector<HTMLButtonElement>('.menu-toggle');
+  const nav = document.querySelector<HTMLElement>('#site-nav');
+
+  if (toggle && nav) {
+    const setOpen = (open: boolean) => {
+      toggle.setAttribute('aria-expanded', String(open));
+      toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+      nav.classList.toggle('is-open', open);
+      // Stop the page behind the drawer from scrolling.
+      document.body.style.overflow = open ? 'hidden' : '';
+    };
+
+    toggle.addEventListener('click', () => {
+      setOpen(toggle.getAttribute('aria-expanded') !== 'true');
+    });
+
+    // Tapping a link navigates away, so close the drawer behind it.
+    nav.addEventListener('click', (event) => {
+      if ((event.target as HTMLElement).closest('a')) setOpen(false);
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') setOpen(false);
+    });
+
+    // If the window is widened past the breakpoint while the drawer is open,
+    // reset it so the inline nav is not left with a locked <body>.
+    matchMedia('(min-width: 56rem)').addEventListener('change', (event) => {
+      if (event.matches) setOpen(false);
+    });
+  }
+</script>

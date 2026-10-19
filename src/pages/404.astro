@@ -1,0 +1,46 @@
+---
+/**
+ * Not-found page. Most static hosts serve /404.html automatically for any
+ * unrecognised URL; a few need it naming in their config.
+ */
+import Base from '../layouts/Base.astro';
+import { withBase } from '../lib/content.ts';
+---
+
+<Base title="Page not found" noindex={true}>
+  <section class="section notfound">
+    <div class="container">
+      <p class="eyebrow">Error 404</p>
+      <h1>That page has not been made yet.</h1>
+      <p class="notfound__body">
+        The link may be out of date, or the page may have moved. The work is all still here.
+      </p>
+      <div class="notfound__actions">
+        <a class="btn" href={withBase('/work/')}>View the work</a>
+        <a class="btn btn--secondary" href={withBase('/')}>Back to home</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .notfound {
+    display: flex;
+    align-items: center;
+    min-height: 60svh;
+  }
+
+  .notfound__body {
+    max-width: 40ch;
+    margin-top: var(--space-lg);
+    color: var(--text-muted);
+    font-size: var(--step-1);
+  }
+
+  .notfound__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-md);
+    margin-top: var(--space-xl);
+  }
+</style>

@@ -1,0 +1,127 @@
+---
+/**
+ * Service cards. { type: 'capabilities' } in src/site.config.ts.
+ * One card per Markdown file in src/content/capabilities/.
+ */
+import { render } from 'astro:content';
+import Icon from '../Icon.astro';
+import { getCapabilities } from '../../lib/content.ts';
+
+interface Props {
+  title: string;
+  intro?: string;
+}
+
+const { title, intro } = Astro.props;
+
+// Render each file's Markdown body once, up front, so the template below
+// stays a simple loop.
+const capabilities = await Promise.all(
+  (await getCapabilities()).map(async (entry) => ({
+    ...entry,
+    Content: (await render(entry)).Content,
+  })),
+);
+---
+
+{
+  capabilities.length > 0 && (
+    <section class="section section--tinted">
+      <div class="container">
+        <div class="section-head">
+          <h2>{title}</h2>
+          {intro && <p>{intro}</p>}
+        </div>
+
+        <div class="grid">
+          {capabilities.map(({ data, Content }) => (
+            <article class="capability">
+              <span class="capability__icon">
+                <Icon name={data.icon} size={22} />
+              </span>
+              <h3 class="capability__title">{data.title}</h3>
+              <p class="capability__blurb">{data.blurb}</p>
+              <div class="capability__detail">
+                <Content />
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .capability {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: var(--space-xl);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--bg);
+    transition:
+      border-color var(--transition),
+      transform var(--transition);
+  }
+
+  .capability:hover {
+    border-color: var(--border-strong);
+    transform: translateY(-2px);
+  }
+
+  .capability__icon {
+    display: grid;
+    place-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    margin-bottom: var(--space-lg);
+    border-radius: var(--radius);
+    background: color-mix(in srgb, var(--accent) 14%, transparent);
+    color: var(--accent);
+  }
+
+  .capability__title {
+    font-size: var(--step-1);
+  }
+
+  .capability__blurb {
+    margin-top: var(--space-sm);
+    color: var(--text-muted);
+    font-size: var(--step--1);
+  }
+
+  /* The Markdown body of the file, usually a short bullet list. */
+  .capability__detail {
+    margin-top: var(--space-lg);
+    padding-top: var(--space-lg);
+    border-top: 1px solid var(--border);
+    color: var(--text-faint);
+    font-size: var(--step--1);
+  }
+
+  .capability__detail :global(ul) {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .capability__detail :global(li) {
+    padding-left: 1.1em;
+    position: relative;
+  }
+
+  .capability__detail :global(li)::before {
+    content: '';
+    position: absolute;
+    top: 0.62em;
+    left: 0;
+    width: 5px;
+    height: 1px;
+    background: var(--accent);
+  }
+</style>

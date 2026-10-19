@@ -1,0 +1,770 @@
+<!doctype html>
+<html lang="en-GB">
+<head><meta charset="utf-8"><title>How this website works</title><style>
+  @page { size: A4; margin: 18mm 16mm 20mm; }
+
+  :root {
+    --accent: #d94f00;      /* a touch deeper than the site's orange, which is
+                               too light to read against white paper */
+    --ink: #16191c;
+    --muted: #5a6470;
+    --rule: #dfe3e8;
+    --panel: #f6f7f9;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    color: var(--ink);
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 10.2pt;
+    line-height: 1.55;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* --- Cover ---------------------------------------------------------- */
+
+  .cover {
+    height: 232mm;              /* one full page inside the margins */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    page-break-after: always;
+  }
+
+  .cover__mark {
+    width: 34px; height: 34px;
+    margin-bottom: 26mm;
+    background: var(--accent);
+    clip-path: polygon(0 0, 100% 0, 100% 70%, 70% 100%, 0 100%);
+  }
+
+  .cover__brand {
+    font-size: 11pt; font-weight: 700;
+    letter-spacing: .28em; text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8mm;
+  }
+
+  .cover__title {
+    font-size: 34pt; font-weight: 700;
+    line-height: 1.05; letter-spacing: -.02em;
+    margin: 0 0 6mm;
+  }
+
+  .cover__subtitle {
+    font-size: 13pt; color: var(--muted);
+    max-width: 115mm; margin: 0;
+  }
+
+  .cover__meta {
+    margin-top: 26mm; padding-top: 5mm;
+    border-top: 2px solid var(--accent);
+    font-size: 9pt; color: var(--muted);
+  }
+
+  /* --- Headings -------------------------------------------------------- */
+
+  h1 {
+    font-size: 19pt; letter-spacing: -.01em;
+    margin: 0 0 6mm;
+    padding-bottom: 3mm;
+    border-bottom: 2px solid var(--accent);
+    page-break-after: avoid;
+  }
+
+  /* The document title is already on the cover. */
+  .body > h1:first-child { display: none; }
+
+  h2 {
+    font-size: 14pt; margin: 9mm 0 3mm;
+    padding-top: 4mm; border-top: 1px solid var(--rule);
+    page-break-after: avoid;
+  }
+
+  h3 { font-size: 11.5pt; margin: 6mm 0 2mm; page-break-after: avoid; }
+  h4 { font-size: 10.5pt; margin: 5mm 0 2mm; page-break-after: avoid; }
+
+  p { margin: 0 0 3.2mm; orphans: 3; widows: 3; }
+
+  /* --- Lists ----------------------------------------------------------- */
+
+  ul, ol { margin: 0 0 3.5mm; padding-left: 6mm; }
+  li { margin-bottom: 1.4mm; }
+  li::marker { color: var(--accent); }
+
+  /* Contents list on page 2 */
+  .body > ol:first-of-type { columns: 2; column-gap: 10mm; }
+
+  /* --- Code ------------------------------------------------------------ */
+
+  code {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 8.6pt;
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    padding: .4mm 1.1mm;
+  }
+
+  pre {
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-left: 2.5px solid var(--accent);
+    border-radius: 3px;
+    padding: 3mm 3.5mm;
+    margin: 0 0 4mm;
+    overflow: hidden;
+    page-break-inside: avoid;
+  }
+
+  pre code {
+    background: none; border: 0; padding: 0;
+    font-size: 8.4pt; line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  /* --- Tables ---------------------------------------------------------- */
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0 0 4.5mm;
+    font-size: 9.1pt;
+    page-break-inside: avoid;
+  }
+
+  th {
+    text-align: left;
+    background: var(--panel);
+    font-size: 8.4pt;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 2mm 2.5mm;
+    border-bottom: 1.5px solid var(--accent);
+  }
+
+  td {
+    padding: 2mm 2.5mm;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+
+  td code { font-size: 8.2pt; }
+
+  /* --- Callouts -------------------------------------------------------- */
+
+  blockquote {
+    margin: 0 0 4mm;
+    padding: 3mm 4mm;
+    background: #fff7f2;
+    border-left: 2.5px solid var(--accent);
+    color: #4a3a30;
+    page-break-inside: avoid;
+  }
+
+  blockquote p:last-child { margin-bottom: 0; }
+
+  hr {
+    border: 0;
+    border-top: 1px solid var(--rule);
+    margin: 7mm 0;
+  }
+
+  a { color: var(--accent); text-decoration: none; }
+
+  strong { font-weight: 700; }
+</style></head>
+<body>
+  <section class="cover">
+    <div class="cover__mark"></div>
+    <div class="cover__brand">JIMBO</div>
+    <h1 class="cover__title">How this website works</h1>
+    <p class="cover__subtitle">The concept, the architecture, and how to change the styling</p>
+    <div class="cover__meta">21 August 2026</div>
+  </section>
+  <main class="body"><h1>How this website works</h1>
+<p>An explanation of what has been built, why it is put together this way, and how
+to change the way it looks.</p>
+<p>This is written for someone who does not build websites. There is no code to
+learn here — the aim is that you understand the shape of the thing well enough
+to make decisions about it, and to brief someone else if you ever need to.</p>
+<p><strong>Contents</strong></p>
+<ol>
+<li>The short version</li>
+<li>What a website actually is</li>
+<li>The problem with writing plain HTML</li>
+<li>What Astro does about it</li>
+<li>Build time, not visit time</li>
+<li>The three layers</li>
+<li>A page being built, step by step</li>
+<li>What this buys you</li>
+<li>Why not WordPress, Wix or Squarespace</li>
+<li>Why not React or Next.js</li>
+<li>Being fair: when plain HTML would have been fine</li>
+<li>Changing how the site looks</li>
+<li>The limits of this setup</li>
+</ol>
+<hr>
+<h2>1. The short version</h2>
+<p>Your website is <strong>a folder of ordinary files</strong> — HTML pages, images, videos, a
+stylesheet. Any web host on earth can serve it. There is no database, no login,
+no software running on a server that could break or need patching.</p>
+<p>But writing those files by hand would be miserable, because a site of fourteen
+pages contains the same header, footer and menu fourteen times over.</p>
+<p>So you do not write them by hand. You write <strong>the content</strong> (one file per
+project, one file per page) and <strong>the templates</strong> (what a project page looks
+like), and a tool called <strong>Astro</strong> combines the two and produces the fourteen
+finished pages for you.</p>
+<p>You get the simplicity of plain files to host, without the tedium of
+maintaining them by hand. That is the entire idea.</p>
+<hr>
+<h2>2. What a website actually is</h2>
+<p>When someone visits your site, their browser asks your web host for a page, and
+the host sends back a file of HTML — text with markers around it saying “this
+is a heading”, “this is a paragraph”, “put this image here”.</p>
+<p>Alongside it comes a <strong>stylesheet</strong> (CSS), which says what those things should
+look like: the colours, the fonts, the spacing, and how the layout should
+rearrange itself on a phone.</p>
+<p>That is genuinely all a web page is. Everything else is a means of producing
+those files.</p>
+<p>Broadly, there are two ways to produce them.</p>
+<p><strong>Ahead of time.</strong> The pages are made once, in advance, and sit on the host as
+finished files. When a visitor arrives, the host hands over a file it already
+had. This is what your site does.</p>
+<p><strong>On demand.</strong> Nothing exists in advance. When a visitor arrives, software on
+the server wakes up, queries a database, assembles the page on the spot, and
+sends it. This is what WordPress does.</p>
+<p>Almost every practical difference between the options comes back to this one
+distinction.</p>
+<hr>
+<h2>3. The problem with writing plain HTML</h2>
+<p>Suppose you had written your fourteen pages by hand. Everything works. Then one
+of these entirely ordinary things happens.</p>
+<p><strong>Your phone number changes.</strong> It appears in the footer of every page. You open
+fourteen files, find it in each, change it, save. Miss one, and there is a dead
+number on your Contact page for a year.</p>
+<p><strong>You add a new project.</strong> You copy an existing project page and edit it. Then
+you add a card for it on the Work page. Then on the home page. Then you update
+the “previous / next” links on the two neighbouring projects. Five files edited
+to add one project, and four of those edits are ones you can silently forget.</p>
+<p><strong>You add a page called FAQ.</strong> It needs to appear in the top menu — which lives
+in all fourteen files. Fifteen now.</p>
+<p><strong>You decide the orange is too bright.</strong> It appears in buttons, links, headings
+and borders across every page.</p>
+<p>None of this is difficult. It is just repetitive, and repetitive work performed
+by a human is work that eventually gets done inconsistently. The usual result
+is a site that slowly rots: the footer says 2019 on three pages, one project is
+missing from the Work listing, and the menu is different on the About page.</p>
+<p><strong>The problem is not that HTML is hard. The problem is duplication.</strong> The same
+header exists in fourteen places, so there are fourteen chances for it to drift
+out of step.</p>
+<hr>
+<h2>4. What Astro does about it</h2>
+<p>Astro removes the duplication by keeping each thing in exactly one place.</p>
+<p>The header exists once, in a file called <code>Header.astro</code>. The look of a project
+page exists once. Your contact details exist once. Each project exists once, as
+a small file containing only what makes that project different from the others.</p>
+<p>Then you run one command — <code>npm run build</code> — and Astro reads all of it,
+combines the pieces, and writes out the fourteen finished HTML pages.</p>
+<p>The header still ends up in all fourteen pages. But <strong>you</strong> only ever maintain
+one copy, and the machine does the copying — which it does identically, every
+time, without getting bored.</p>
+<p>Look at what the four scenarios above become:</p>
+<table>
+<thead>
+<tr>
+<th>The change</th>
+<th>By hand</th>
+<th>With Astro</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Phone number changes</td>
+<td>Edit 14 files</td>
+<td>Edit 1 line in <code>site.config.ts</code></td>
+</tr>
+<tr>
+<td>Add a project</td>
+<td>Edit 5 files, remember all 5</td>
+<td>Add 1 file</td>
+</tr>
+<tr>
+<td>Add an FAQ page</td>
+<td>Edit 15 files</td>
+<td>Add 1 file with <code>nav: true</code></td>
+</tr>
+<tr>
+<td>Change the orange</td>
+<td>Hunt across every page</td>
+<td>Edit 1 line in <code>global.css</code></td>
+</tr>
+</tbody>
+</table>
+<p>The last three columns are not a marketing exaggeration; they are literally the
+steps, and they are what <code>CONTENT-GUIDE.md</code> documents.</p>
+<h3>Where the name comes from</h3>
+<p>Astro is an open-source tool, free, widely used, and specifically designed for
+this kind of site — content-led sites where most of the page is text and
+pictures rather than an application people log into. It is a good fit for a
+portfolio.</p>
+<hr>
+<h2>5. Build time, not visit time</h2>
+<p>This is the one technical idea genuinely worth holding on to, because most of
+the advantages follow from it.</p>
+<p>There are two distinct moments in the life of your website.</p>
+<p><strong>Build time</strong> — when you run <code>npm run build</code> on your own computer. Astro reads
+your content files, applies the templates, and writes out finished pages into a
+folder called <code>dist</code>. This takes about half a second. It happens on your
+machine, and no visitor is involved or affected.</p>
+<p><strong>Visit time</strong> — when a customer opens your site. The host hands them a
+finished file. Nothing is assembled, nothing is calculated, no database is
+consulted.</p>
+<p>All of the work has been moved out of the moment when a customer is waiting,
+and into a moment when nobody is waiting.</p>
+<p>Compare with WordPress, where every single visit triggers the assembly: PHP
+starts up, queries a database several times, builds the page, sends it. That
+work is repeated for every visitor, every time, for a page that has not changed
+in six months.</p>
+<p>This is why:</p>
+<ul>
+<li><strong>The site is fast.</strong> There is nothing to do but send a file.</li>
+<li><strong>It cannot be hacked in the usual ways.</strong> There is no database to break into,
+no login page to attack, no plugin with a vulnerability. There is no software
+running on your host at all — only files sitting there.</li>
+<li><strong>It cannot go down under load.</strong> A hundred people arriving at once is a
+hundred file downloads, which is what web hosts are built for.</li>
+<li><strong>Hosting is cheap and unfussy.</strong> Any host will do, including the cheapest
+shared hosting.</li>
+<li><strong>There is nothing to maintain.</strong> No updates, no security patches, no
+renewals. A site built today will still work untouched in five years.</li>
+</ul>
+<p>The trade-off is real and worth stating plainly: <strong>the site only changes when
+you rebuild it.</strong> There is no editing a live page from your phone. For a
+portfolio updated when a project finishes, that is a fair swap. For a news site
+publishing hourly, it would not be.</p>
+<hr>
+<h2>6. The three layers</h2>
+<p>The project is deliberately arranged so that three different concerns stay
+apart from one another. This is the single most important thing to understand
+about maintaining it.</p>
+<h3>Layer 1 — Content: what the site says</h3>
+<pre><code>src/content/projects/     one file per project
+src/content/pages/        one file per page
+src/content/capabilities/ one file per service card
+src/site.config.ts        brand, menu, contact details, home page order
+</code></pre>
+<p>This is the layer you touch. It is plain text, it has no code in it, and
+<code>CONTENT-GUIDE.md</code> covers it in full.</p>
+<h3>Layer 2 — Structure: what shape things take</h3>
+<pre><code>src/components/    the header, footer, project card, media player
+src/layouts/       the page wrapper every page sits inside
+src/pages/         the rules that turn content files into web addresses
+</code></pre>
+<p>This is the machinery. You will rarely open it. Changing it means changing what
+a project page <em>is</em>, rather than what it <em>says</em> — for example, moving the facts
+panel from the right-hand side to underneath the description.</p>
+<h3>Layer 3 — Style: how it looks</h3>
+<pre><code>src/styles/global.css   colours, fonts, sizes, spacing
+astro.config.mjs        which fonts get downloaded
+</code></pre>
+<p>Covered in section 12.</p>
+<p><strong>The value of the separation</strong> is that you can work in any one layer without
+understanding the other two. Adding twenty projects requires no knowledge of
+how a project page is built. Changing every colour on the site requires no
+knowledge of what any page says.</p>
+<hr>
+<h2>7. A page being built, step by step</h2>
+<p>Concretely, here is what happens when you run <code>npm run build</code> and Astro reaches
+your Riverside Tower project.</p>
+<ol>
+<li>
+<p><strong>It reads the content file.</strong> <code>src/content/projects/riverside-tower-facade.md</code>
+gives it the title, the client, the image, and your written description.</p>
+</li>
+<li>
+<p><strong>It checks the file is valid.</strong> Every project must have a title, a client, a
+type, a summary and a poster image, and the type must be one of three
+specific words. If something is missing or misspelt, the build <strong>stops</strong> and
+names the file and the field.</p>
+<p>This is a feature, not an obstacle. A typo becomes an error message on your
+own screen, rather than a broken page a customer finds three weeks later.</p>
+</li>
+<li>
+<p><strong>It picks the template.</strong> The file is a project, so it uses
+<code>src/pages/work/[...slug].astro</code> — the design shared by every project page.</p>
+</li>
+<li>
+<p><strong>It fills the template in,</strong> dropping your title into the heading, your
+image into the media frame, your facts into the panel.</p>
+</li>
+<li>
+<p><strong>It wraps it in the page shell,</strong> adding the header, menu and footer that
+every page shares.</p>
+</li>
+<li>
+<p><strong>It works out the neighbours</strong> so the previous/next links at the bottom
+point at the right projects — recalculated automatically, so adding a project
+in the middle does not leave stale links.</p>
+</li>
+<li>
+<p><strong>It writes the finished file</strong> to <code>dist/work/riverside-tower-facade/index.html</code>,
+which is a complete, ordinary web page.</p>
+</li>
+</ol>
+<p>Then it does the same for the other thirteen pages, generates a sitemap for
+Google, and stops. Total time, about half a second.</p>
+<p>Delete that project file and rebuild, and the page is simply not written this
+time. It vanishes from the Work listing and the home page, and the neighbouring
+projects re-link around the gap — because none of those things were ever
+written down by hand.</p>
+<hr>
+<h2>8. What this buys you</h2>
+<p>Pulling the practical consequences together:</p>
+<p><strong>Adding a project is one file.</strong> Not five, and not five with four chances to
+forget one.</p>
+<p><strong>Mistakes are caught on your computer, not by your customers.</strong> Misspell the
+project type and the build stops with a message naming the file. There is no
+equivalent safety net in hand-written HTML, where a typo just produces a
+slightly wrong page.</p>
+<p><strong>The site cannot become internally inconsistent.</strong> The menu is generated from
+the pages that exist. The Work listing is generated from the projects that
+exist. They cannot disagree with each other, because neither is maintained
+separately.</p>
+<p><strong>It is fast on a building site.</strong> Pages are pre-built and small; images load
+only as they are scrolled towards; videos are not downloaded until needed. That
+matters when a contractor opens your site on 4G in a portakabin.</p>
+<p><strong>It stays fast as it grows.</strong> Fifty projects build in about the same time as
+eight, and each page is still just a file.</p>
+<p><strong>You are not locked in.</strong> The output is ordinary HTML. If you abandoned Astro
+tomorrow, the <code>dist</code> folder would keep working forever, and your content is
+plain text files, not rows in somebody’s database.</p>
+<hr>
+<h2>9. Why not WordPress, Wix or Squarespace</h2>
+<p>These are reasonable options, and worth being honest about: their big advantage
+is editing the site in a browser, from anywhere, with no editor to install. If
+that mattered most, one of them would be the right answer. You were offered a
+hosted system at the outset and chose files instead.</p>
+<p>What you avoid by not using them:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Your site</th>
+<th>WordPress</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Speed</td>
+<td>Sends a finished file</td>
+<td>Builds each page per visit</td>
+</tr>
+<tr>
+<td>Security</td>
+<td>Nothing to attack</td>
+<td>Logins, plugins and a database to keep patched</td>
+</tr>
+<tr>
+<td>Maintenance</td>
+<td>None</td>
+<td>Core, theme and plugin updates, indefinitely</td>
+</tr>
+<tr>
+<td>Hosting</td>
+<td>Any host, cheapest tier</td>
+<td>Needs PHP, a database, and enough memory</td>
+</tr>
+<tr>
+<td>Monthly cost</td>
+<td>Hosting only</td>
+<td>Hosting, often plus paid plugins</td>
+</tr>
+<tr>
+<td>Longevity</td>
+<td>Works untouched for years</td>
+<td>Neglect it and it breaks or gets hacked</td>
+</tr>
+</tbody>
+</table>
+<p>Wix and Squarespace remove the maintenance burden, but replace it with a
+subscription and a boundary: you can do what the platform allows, at the speed
+the platform runs, and exporting your site later ranges from awkward to
+impossible.</p>
+<p>The specific thing they are all weakest at is the thing your site is <em>for</em> —
+serving heavy 3D imagery and video quickly to someone on a phone signal.</p>
+<hr>
+<h2>10. Why not React or Next.js</h2>
+<p>These are the tools behind large web applications — Facebook, Airbnb, an online
+banking dashboard. They are built for interfaces where the screen constantly
+changes in response to the user: filtering, dragging, live updating, logging in.</p>
+<p>A portfolio is not that. It is pages of text and pictures that sit still.</p>
+<p>Building it in React would mean sending a large amount of JavaScript to every
+visitor’s phone so that their phone could assemble a page that could simply
+have been sent to them finished. It is slower, heavier and more fragile, for a
+capability the site never uses.</p>
+<p>Astro’s specific design decision is that it ships <strong>no JavaScript by default</strong>,
+and lets you add small pieces only where interactivity is genuinely needed.
+Your site uses about two kilobytes in total, for exactly three jobs:</p>
+<ul>
+<li>opening and closing the menu on a phone</li>
+<li>playing a video preview when you hover a project card</li>
+<li>filtering the Work page when a filter button is clicked</li>
+</ul>
+<p>Everything else is plain HTML and CSS. Turn JavaScript off entirely and the
+site still works — you would simply see the still images rather than the hover
+previews.</p>
+<hr>
+<h2>11. Being fair: when plain HTML would have been fine</h2>
+<p>It would be dishonest to claim this approach always wins.</p>
+<p>If the site were three pages that never changed, hand-written HTML would be
+perfectly sensible, and would need no tooling, no commands and no folder of
+software. The duplication argument only bites once there is enough repetition
+for a human to get it wrong.</p>
+<p>The break-even is roughly: more than a handful of pages, sharing a common
+header and footer, that somebody expects to keep adding to. Your site is
+fourteen pages growing towards fifty, with every project page sharing one
+design. That is comfortably past the line.</p>
+<p>There is a genuine cost, and it is worth naming: <strong>you need Node.js installed
+and you need to run a command to publish.</strong> That is a real barrier that a
+hand-written site would not have, and it is why <code>CONTENT-GUIDE.md</code> spells out
+each step. In exchange, adding a project went from five careful edits to one
+file.</p>
+<hr>
+<h2>12. Changing how the site looks</h2>
+<p>Everything visual is controlled from one file: <strong><code>src/styles/global.css</code></strong>.</p>
+<p>Open it and the first thing you will see is a block that starts with <code>:root</code>.
+These are the <strong>design tokens</strong> — a set of named values that the rest of the
+site refers to instead of repeating.</p>
+<p>Nothing on the site says “use orange”. Everything says “use the accent colour”,
+and the accent colour is defined once. Change that one definition and every
+button, link, bullet and highlight follows, consistently, everywhere.</p>
+<h3>The idea in one example</h3>
+<p>Find this line:</p>
+<pre><code class="language-css">--accent: #ff6a1a;
+</code></pre>
+<p>That is the orange. Change it to, say, a strong blue:</p>
+<pre><code class="language-css">--accent: #1a6aff;
+</code></pre>
+<p>Save. With the preview running, the whole site rebrands in front of you:
+buttons, the logo mark, hover states, list bullets, the underline on the
+current menu item, the glow behind the closing panel. One line.</p>
+<blockquote>
+<p><code>#ff6a1a</code> is a hex colour code — a standard way of writing a colour that
+every design tool understands. In Photoshop, Figma or Illustrator, the colour
+picker shows this code and you can copy it straight across.</p>
+</blockquote>
+<h3>The tokens worth knowing</h3>
+<p><strong>Colours</strong></p>
+<table>
+<thead>
+<tr>
+<th>Token</th>
+<th>What it controls</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--accent</code></td>
+<td>The brand colour: buttons, links, highlights</td>
+</tr>
+<tr>
+<td><code>--accent-hover</code></td>
+<td>The lighter shade when the mouse is over a button</td>
+</tr>
+<tr>
+<td><code>--accent-ink</code></td>
+<td>Text colour <em>on top of</em> an accent button — keep it readable</td>
+</tr>
+<tr>
+<td><code>--bg</code></td>
+<td>The main page background</td>
+</tr>
+<tr>
+<td><code>--bg-raised</code></td>
+<td>Slightly lighter panels, e.g. the “What we make” band</td>
+</tr>
+<tr>
+<td><code>--bg-sunken</code></td>
+<td>Slightly darker areas, e.g. the footer</td>
+</tr>
+<tr>
+<td><code>--surface</code></td>
+<td>Cards and form fields</td>
+</tr>
+<tr>
+<td><code>--text</code></td>
+<td>Main text</td>
+</tr>
+<tr>
+<td><code>--text-muted</code></td>
+<td>Secondary text, such as project summaries</td>
+</tr>
+<tr>
+<td><code>--text-faint</code></td>
+<td>Small print and labels</td>
+</tr>
+<tr>
+<td><code>--border</code></td>
+<td>The faint dividing lines</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Text size</strong> — <code>--step--1</code> up to <code>--step-5</code>, smallest to largest. <code>--step-0</code> is
+body text; <code>--step-5</code> is the giant home page headline.</p>
+<p>These use a fluid scale, which is worth understanding because it is unusual:
+each size is written as a range rather than a fixed number, and the browser
+picks a value in between based on the width of the screen. Text therefore grows
+smoothly from phone to laptop rather than jumping at fixed points. To make all
+headings bigger, raise the numbers in <code>--step-3</code> through <code>--step-5</code>.</p>
+<p><strong>Spacing</strong> — <code>--space-xs</code> up to <code>--space-3xl</code>, and <code>--gutter</code>, which is the
+margin down the left and right of every page. Increase <code>--space-3xl</code> to make
+the site feel airier; reduce it to tighten everything up.</p>
+<p><strong>Shape</strong></p>
+<table>
+<thead>
+<tr>
+<th>Token</th>
+<th>What it controls</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--radius</code></td>
+<td>Corner rounding on buttons and inputs</td>
+</tr>
+<tr>
+<td><code>--radius-lg</code></td>
+<td>Corner rounding on images, cards and panels</td>
+</tr>
+<tr>
+<td><code>--container</code></td>
+<td>Maximum page width on a large screen</td>
+</tr>
+<tr>
+<td><code>--header-height</code></td>
+<td>Height of the bar at the top</td>
+</tr>
+</tbody>
+</table>
+<p>Set both radius values to <code>0px</code> for hard, square, industrial corners.</p>
+<h3>Changing the fonts</h3>
+<p>Fonts are set in <strong><code>astro.config.mjs</code></strong>. The site currently uses Archivo for
+headings and Inter for body text, both from Google Fonts.</p>
+<p>Find the <code>name:</code> line in each block and change it to any font listed at
+fonts.google.com, spelled exactly as Google spells
+it:</p>
+<pre><code class="language-js">provider: fontProviders.google(),
+name: 'Archivo',            &lt;- change this
+cssVariable: '--font-display',
+weights: [500, 600, 700],
+</code></pre>
+<p>Leave <code>cssVariable</code> alone — that is the internal name the stylesheet uses.</p>
+<p>Do check that the weights you have asked for actually exist for your chosen
+font; some only offer 400 and 700. The font’s page on Google Fonts lists them.</p>
+<p>The fonts are downloaded once when the site is built and then served from your
+own site, so no visitor request ever goes to Google. That is better for privacy
+and for speed, and it means the site is not broken by Google changing anything.</p>
+<h3>Changing one specific thing</h3>
+<p>Tokens handle anything site-wide. To change something in one place only — the
+header a bit taller, the project cards spaced further apart — the rules for
+each piece live at the bottom of that piece’s own file, inside a <code>&lt;style&gt;</code>
+block.</p>
+<p>So <code>src/components/Header.astro</code> contains the header’s appearance, and
+<code>src/components/ProjectCard.astro</code> the cards’. Those styles apply <em>only</em> to
+that component, so experimenting in one cannot accidentally break another.</p>
+<p><strong>A sensible order of attack:</strong> try a token first, since it is one line and
+consistent. Go into a component only when you genuinely want that one thing to
+differ from everything else.</p>
+<h3>How the responsive layout is controlled</h3>
+<p>The rules that rearrange the site for smaller screens are the lines beginning
+<code>@media (min-width: ...)</code>. They read as “once the screen is at least this wide,
+also apply these rules”.</p>
+<p>The site is written <strong>mobile first</strong>: the plain rules describe the phone
+layout, and the <code>@media</code> blocks progressively add to it as space becomes
+available. The three sizes it was tested at are 390px (phone), 834px (tablet)
+and 1440px (laptop).</p>
+<p>The main threshold is <code>56rem</code> — about 900px — where the menu changes from a
+button-and-drawer to inline links across the top.</p>
+<h3>Three things the tokens do not reach</h3>
+<p>The accent colour is used in 32 places across the site, and changing that one
+line genuinely updates all of them — this was tested by switching it to blue
+and confirming no orange survived anywhere in the built stylesheet.</p>
+<p>Three things sit outside the stylesheet, though, and will keep the old colour
+until they are updated separately. If you rebrand, remember these:</p>
+<table>
+<thead>
+<tr>
+<th>What</th>
+<th>Where</th>
+<th>Why it is separate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>The tab icon</td>
+<td><code>public/favicon.svg</code></td>
+<td>An image file, not a stylesheet. Open it in a text editor and change the colour code inside, or replace the file</td>
+</tr>
+<tr>
+<td>The phone browser bar tint</td>
+<td>The <code>theme-color</code> line in <code>src/components/BaseHead.astro</code></td>
+<td>Colours the browser chrome on a phone; it has to be a literal value</td>
+</tr>
+<tr>
+<td>The placeholder images</td>
+<td><code>public/media</code></td>
+<td>The orange is baked into the pictures. Irrelevant once real renders replace them</td>
+</tr>
+</tbody>
+</table>
+<p>None of these will break anything if you forget. You will simply have a site in
+your new colour with an orange tab icon, which is the sort of detail that is
+easy to miss for months.</p>
+<h3>Working safely</h3>
+<ol>
+<li>Have the preview running (<code>npm run dev</code>) so you can see each change land.</li>
+<li>Change <strong>one thing</strong>, then look. It is much easier to judge, and much easier
+to undo.</li>
+<li><code>Command</code> + <code>Z</code> in your editor undoes anything.</li>
+<li>Check a phone width as well as your laptop. In Chrome, press <code>F12</code> and click
+the small phone icon to simulate one.</li>
+</ol>
+<p>Colour, size and spacing changes are safe to experiment with — the worst
+outcome is that it looks wrong and you undo it. The things to be more careful
+with are <code>position</code>, <code>display</code> and <code>grid</code> rules inside components, which govern
+layout rather than appearance.</p>
+<hr>
+<h2>13. The limits of this setup</h2>
+<p>Stated plainly, so nothing comes as a surprise later:</p>
+<p><strong>You cannot edit the site from a phone or a hotel browser.</strong> Changes need the
+project folder and a computer with Node.js installed.</p>
+<p><strong>Publishing is a command, not a button.</strong> <code>npm run build</code>, then upload. It can
+be automated later if that becomes annoying.</p>
+<p><strong>A contact form needs a third party.</strong> There is no software running on your
+host to receive a form submission, so it has to be posted to a service such as
+Formspree. Until one is configured, the contact page shows your email and phone
+instead.</p>
+<p><strong>Anything genuinely live is out of scope</strong> — user accounts, a searchable
+database of hundreds of products, real-time stock. None of these are on the
+horizon for a portfolio, and each would mean revisiting the choice.</p>
+<p><strong>Someone technical is needed for structural change.</strong> Restyling is
+approachable. Adding a fundamentally new <em>kind</em> of page is a developer job —
+though a small one, because the pieces are already separated.</p>
+<hr>
+<h2>In one paragraph</h2>
+<p>Your website is a folder of ordinary files, which is the simplest and most
+durable thing a website can be. Astro is the tool that writes those files for
+you from your content, so that you never maintain the same header fourteen
+times. All the work happens on your computer before anyone visits, which is why
+the site is fast, cannot be hacked in the usual ways, costs almost nothing to
+host, and will still work in ten years. The price is that publishing is a
+command rather than a button — and in exchange, adding a project is one file.</p>
+</main>
+</body>
+</html>

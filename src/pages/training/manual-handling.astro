@@ -1,0 +1,18 @@
+---
+/**
+ * SAFE MANUAL HANDLING — sample interactive CPD module.
+ *
+ * The words live in src/lib/training/manual-handling.ts and the player in
+ * src/components/training/ModulePlayer.astro.
+ */
+import Base from '../../layouts/Base.astro';
+import ModulePlayer from '../../components/training/ModulePlayer.astro';
+import { MODULE, SECTIONS, TOTAL_SLIDES, TOTAL_QUESTIONS } from '../../lib/training/manual-handling.ts';
+---
+
+<Base
+  title={MODULE.title}
+  description={`${MODULE.subtitle} A sample interactive CPD module: ${TOTAL_SLIDES} steps and ${TOTAL_QUESTIONS} questions.`}
+>
+  <ModulePlayer module={MODULE} sections={SECTIONS} />
+</Base>

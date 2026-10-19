@@ -1,0 +1,19 @@
+---
+/**
+ * PACSANA — sample product walkthrough.
+ *
+ * The words live in src/lib/walkthrough/pacsana.ts, the phone mock-ups in
+ * src/lib/walkthrough/screens-pacsana.ts, and the player in
+ * src/components/walkthrough/Walkthrough.astro.
+ */
+import Base from '../../layouts/Base.astro';
+import Walkthrough from '../../components/walkthrough/Walkthrough.astro';
+import { WALKTHROUGH, STEPS } from '../../lib/walkthrough/pacsana.ts';
+---
+
+<Base
+  title={WALKTHROUGH.title}
+  description={`${WALKTHROUGH.subtitle} A sample interactive product walkthrough in ${STEPS.length} steps.`}
+>
+  <Walkthrough walkthrough={WALKTHROUGH} steps={STEPS} />
+</Base>

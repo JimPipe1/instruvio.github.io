@@ -1,0 +1,54 @@
+---
+/**
+ * A quiet row of client names. { type: 'clients' } in src/site.config.ts.
+ *
+ * Text is used rather than logo files so the section works before you have
+ * permission to display anyone's mark. To switch to logos, drop SVGs into
+ * public/media/logos/ and replace the <li> contents with an <img>.
+ */
+interface Props {
+  title: string;
+  items: string[];
+}
+
+const { title, items } = Astro.props;
+---
+
+<section class="section">
+  <div class="container">
+    <h2 class="clients__title">{title}</h2>
+    <ul class="clients">
+      {items.map((item) => <li class="clients__item">{item}</li>)}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .clients__title {
+    margin-bottom: var(--space-lg);
+    color: var(--text-faint);
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .clients {
+    display: grid;
+    /* Wraps from two columns on a phone up to six on a laptop, with no
+       breakpoints needed. */
+    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    gap: var(--space-lg) var(--space-xl);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .clients__item {
+    color: var(--text-muted);
+    font-family: var(--font-heading);
+    font-size: var(--step-0);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+</style>

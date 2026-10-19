@@ -1,0 +1,268 @@
+---
+/**
+ * CONTACT
+ *
+ * A static site cannot process a form by itself, so the form is only rendered
+ * when CONTACT.formEndpoint is set in src/site.config.ts (Formspree, Basin,
+ * Netlify Forms and similar all give you a URL to paste in there).
+ *
+ * With no endpoint set, the page falls back to plain email and phone links,
+ * which always work.
+ */
+import Base from '../layouts/Base.astro';
+import { CONTACT } from '../site.config.ts';
+
+const hasForm = Boolean(CONTACT.formEndpoint);
+---
+
+<Base
+  title="Contact"
+  description="Start a video project, or ask what an explainer or CPD series would cost."
+>
+  <section class="section">
+    <div class="container">
+      <div class="contact">
+        <div class="contact__intro">
+          <p class="eyebrow">Get in touch</p>
+          <h1>Start a project</h1>
+          <p class="contact__lede">
+            Tell us what you need to explain, who needs to understand it, and when you need it.
+            We will come back with an approach, a timeline and a fixed price.
+          </p>
+
+          <dl class="contact__details">
+            <div>
+              <dt>Email</dt>
+              <dd><a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a></dd>
+            </div>
+            {
+              CONTACT.phone && (
+                <div>
+                  <dt>Phone</dt>
+                  <dd>
+                    <a href={`tel:${CONTACT.phone.replace(/[^+\d]/g, '')}`}>{CONTACT.phone}</a>
+                  </dd>
+                </div>
+              )
+            }
+            {
+              CONTACT.location && (
+                <div>
+                  <dt>Studio</dt>
+                  <dd>{CONTACT.location}</dd>
+                </div>
+              )
+            }
+          </dl>
+        </div>
+
+        {
+          hasForm ? (
+            <form class="form" method="POST" action={CONTACT.formEndpoint!}>
+              <div class="form__row">
+                <label class="form__field">
+                  <span class="form__label">Name</span>
+                  <input type="text" name="name" required autocomplete="name" />
+                </label>
+
+                <label class="form__field">
+                  <span class="form__label">Organisation</span>
+                  <input type="text" name="company" autocomplete="organization" />
+                </label>
+              </div>
+
+              <label class="form__field">
+                <span class="form__label">Email</span>
+                <input type="email" name="email" required autocomplete="email" />
+              </label>
+
+              <label class="form__field">
+                <span class="form__label">What do you need?</span>
+                <select name="project_type">
+                  <option>Explainer video</option>
+                  <option>CPD or training modules</option>
+                  <option>SaaS onboarding or UI demo</option>
+                  <option>Product or launch video</option>
+                  <option>Public information video</option>
+                  <option>Not sure yet</option>
+                </select>
+              </label>
+
+              <label class="form__field">
+                <span class="form__label">What do you need to explain?</span>
+                <textarea name="message" rows="5" required />
+              </label>
+
+              {/* A field a human never sees. Bots fill it in, and the endpoint
+                  discards anything that has it filled. */}
+              <input class="form__honeypot" type="text" name="_gotcha" tabindex="-1" aria-hidden="true" />
+
+              <button class="btn btn--block" type="submit">Send enquiry</button>
+            </form>
+          ) : (
+            <div class="fallback">
+              <h2 class="fallback__title">Email is the fastest route</h2>
+              <p class="fallback__body">
+                Send a short description, any existing material (slides, scripts, product links)
+                and your deadline, and we will reply within one working day.
+              </p>
+              <a class="btn" href={`mailto:${CONTACT.email}`}>
+                Email {CONTACT.email}
+              </a>
+              <!-- <p class="fallback__note">  Prefer a form here? Add a form endpoint to <code>CONTACT.formEndpoint</code> in
+                <code>src/site.config.ts</code> and one appears in this space.  
+              </p>-->
+            </div>
+          )
+        }
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .contact {
+    display: grid;
+    gap: var(--space-3xl);
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 56rem) {
+    .contact {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-3xl);
+      align-items: start;
+    }
+  }
+
+  .contact__lede {
+    max-width: 42ch;
+    margin-top: var(--space-lg);
+    color: var(--text-muted);
+    font-size: var(--step-1);
+  }
+
+  .contact__details {
+    margin-top: var(--space-2xl);
+    border-top: 1px solid var(--border);
+  }
+
+  .contact__details > div {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-md);
+    padding-block: var(--space-md);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .contact__details dt {
+    color: var(--text-faint);
+    font-size: var(--step--1);
+  }
+
+  .contact__details dd {
+    margin: 0;
+    text-align: right;
+  }
+
+  /* -------------------------------------------------------------- form */
+
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+    padding: var(--space-xl);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--bg-raised);
+  }
+
+  .form__row {
+    display: grid;
+    gap: var(--space-lg);
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 30rem) {
+    .form__row {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .form__field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+
+  .form__label {
+    color: var(--text-muted);
+    font-size: var(--step--1);
+    font-weight: 500;
+  }
+
+  .form input,
+  .form select,
+  .form textarea {
+    width: 100%;
+    /* 16px minimum stops iOS Safari zooming in when a field is focused. */
+    font-size: max(16px, var(--step-0));
+    padding: var(--space-sm) var(--space-md);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--text);
+    transition: border-color var(--transition);
+  }
+
+  .form input:focus,
+  .form select:focus,
+  .form textarea:focus {
+    border-color: var(--accent);
+  }
+
+  .form textarea {
+    resize: vertical;
+    font-family: inherit;
+  }
+
+  .form__honeypot {
+    position: absolute;
+    left: -9999px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* ---------------------------------------------------------- fallback */
+
+  .fallback {
+    padding: var(--space-xl);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--bg-raised);
+  }
+
+  .fallback__title {
+    font-size: var(--step-1);
+  }
+
+  .fallback__body {
+    margin-block: var(--space-md) var(--space-lg);
+    color: var(--text-muted);
+  }
+
+  .fallback__note {
+    margin-top: var(--space-lg);
+    padding-top: var(--space-lg);
+    border-top: 1px solid var(--border);
+    color: var(--text-faint);
+    font-size: var(--step--1);
+  }
+
+  .fallback__note code {
+    padding: 0.15em 0.4em;
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    font-size: 0.9em;
+  }
+</style>

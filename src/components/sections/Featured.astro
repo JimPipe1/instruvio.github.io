@@ -1,0 +1,181 @@
+---
+/**
+ * A grid of featured projects. Driven by the { type: 'featured' } block in
+ * src/site.config.ts; the projects themselves come from the Markdown files in
+ * src/content/projects/ that are marked `featured: true`.
+ */
+import ProjectCard from '../ProjectCard.astro';
+import { getFeaturedProjects, withBase } from '../../lib/content.ts';
+import type { Link } from '../../site.config.ts';
+
+interface Props {
+  title: string;
+  intro?: string;
+  limit?: number;
+  cta?: Link;
+}
+
+const { title, intro, limit = 4, cta } = Astro.props;
+const projects = await getFeaturedProjects(limit);
+---
+
+{
+  projects.length > 0 && (
+    <section class="section">
+      <div class="container">
+        <div class="featured__head">
+          <div class="section-head">
+            <h2>{title}</h2>
+            {intro && <p>{intro}</p>}
+          </div>
+          {cta && (
+            <a class="link-arrow featured__cta" href={withBase(cta.href)}>
+              {cta.label}
+            </a>
+          )}
+        </div>
+
+        <div class="featured__grid">
+          {/* The first two are likely on screen at once on a laptop, so they
+              load eagerly; the rest wait until they are scrolled towards. */}
+          {projects.map((project, index) => (
+            <ProjectCard
+              project={project}
+              featured={true}
+              loading={index < 2 ? 'eager' : 'lazy'}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .featured__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-md);
+  }
+
+  /* The heading block already carries the bottom margin. */
+  .featured__head .section-head {
+    margin-bottom: var(--space-xl);
+  }
+
+  .featured__cta {
+    margin-bottom: var(--space-xl);
+  }
+
+  .featured__grid {
+    display: grid;
+    gap: var(--space-2xl) var(--space-xl);
+    grid-template-columns: 1fr;
+  }
+
+  /* Two across from tablet upwards. Featured work is given room to breathe,
+     so it stays at two columns rather than going to three on a laptop. */
+  @media (min-width: 48rem) {
+    .featured__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* ---------------------------------------------------------------------
+     Card parallax.
+
+     Each picture is a little taller than the frame that holds it and drifts
+     within it as the card crosses the screen, so the images move at a
+     slightly different rate from the words beside them. The frame itself,
+     the card and all its text stay exactly where the layout puts them —
+     only what is inside the picture moves.
+
+     --card-parallax is a number of percent, set per card by the script
+     below; with none set it is 0 and every picture sits centred.
+     ------------------------------------------------------------------- */
+  .featured__grid :global(.media__img),
+  .featured__grid :global(.media__video) {
+    position: absolute;
+    top: -6%;
+    left: 0;
+    width: 100%;
+    height: 112%;
+    transform: translate3d(0, calc(var(--card-parallax, 0) * 1%), 0);
+    will-change: transform;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .featured__grid :global(.media__img),
+    .featured__grid :global(.media__video) {
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  /**
+   * Parallax for the project cards.
+   *
+   * Each picture drifts inside its own frame according to how far that frame
+   * has travelled across the screen: low on the page it sits high in its
+   * frame, and it settles downward as the card rises. The travel is 5% of the
+   * picture against 6% of spare height either side, so the frame is never
+   * left showing an edge.
+   *
+   * Only cards actually on screen are measured, the measuring happens inside
+   * requestAnimationFrame rather than in the scroll handler, and a visitor who
+   * prefers reduced motion gets still pictures.
+   */
+  const frames = document.querySelectorAll<HTMLElement>('.featured__grid .media');
+  const stillness = matchMedia('(prefers-reduced-motion: reduce)');
+
+  if (frames.length > 0 && !stillness.matches) {
+    /* How far the picture may travel inside its frame, in percent. */
+    const RANGE = 5;
+
+    const onScreen = new Set<HTMLElement>();
+    let queued = false;
+
+    const draw = () => {
+      queued = false;
+      const middle = window.innerHeight / 2;
+
+      for (const frame of onScreen) {
+        const box = frame.getBoundingClientRect();
+        /* -1 when the card is entering from the bottom, 0 as it passes the
+           middle of the screen, +1 as it leaves at the top. */
+        const progress = (middle - (box.top + box.height / 2)) / (middle + box.height / 2);
+        const clamped = Math.max(-1, Math.min(1, progress));
+        frame.style.setProperty('--card-parallax', (clamped * RANGE).toFixed(2));
+      }
+    };
+
+    const onScroll = () => {
+      if (queued || onScreen.size === 0) return;
+      queued = true;
+      requestAnimationFrame(draw);
+    };
+
+    const watcher = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          const frame = entry.target as HTMLElement;
+          if (entry.isIntersecting) onScreen.add(frame);
+          else onScreen.delete(frame);
+        }
+        onScroll();
+      },
+      /* Start moving just before the card appears, so it is already in the
+         right place by the time anyone can see it. */
+      { rootMargin: '10% 0px' },
+    );
+
+    for (const frame of frames) watcher.observe(frame);
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    draw();
+  }
+</script>

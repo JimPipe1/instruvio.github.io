@@ -1,0 +1,889 @@
+<!doctype html>
+<html lang="en-GB">
+<head><meta charset="utf-8"><title>How to update the website</title><style>
+  @page { size: A4; margin: 18mm 16mm 20mm; }
+
+  :root {
+    --accent: #d94f00;      /* a touch deeper than the site's orange, which is
+                               too light to read against white paper */
+    --ink: #16191c;
+    --muted: #5a6470;
+    --rule: #dfe3e8;
+    --panel: #f6f7f9;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    color: var(--ink);
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 10.2pt;
+    line-height: 1.55;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* --- Cover ---------------------------------------------------------- */
+
+  .cover {
+    height: 232mm;              /* one full page inside the margins */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    page-break-after: always;
+  }
+
+  .cover__mark {
+    width: 34px; height: 34px;
+    margin-bottom: 26mm;
+    background: var(--accent);
+    clip-path: polygon(0 0, 100% 0, 100% 70%, 70% 100%, 0 100%);
+  }
+
+  .cover__brand {
+    font-size: 11pt; font-weight: 700;
+    letter-spacing: .28em; text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8mm;
+  }
+
+  .cover__title {
+    font-size: 34pt; font-weight: 700;
+    line-height: 1.05; letter-spacing: -.02em;
+    margin: 0 0 6mm;
+  }
+
+  .cover__subtitle {
+    font-size: 13pt; color: var(--muted);
+    max-width: 115mm; margin: 0;
+  }
+
+  .cover__meta {
+    margin-top: 26mm; padding-top: 5mm;
+    border-top: 2px solid var(--accent);
+    font-size: 9pt; color: var(--muted);
+  }
+
+  /* --- Headings -------------------------------------------------------- */
+
+  h1 {
+    font-size: 19pt; letter-spacing: -.01em;
+    margin: 0 0 6mm;
+    padding-bottom: 3mm;
+    border-bottom: 2px solid var(--accent);
+    page-break-after: avoid;
+  }
+
+  /* The document title is already on the cover. */
+  .body > h1:first-child { display: none; }
+
+  h2 {
+    font-size: 14pt; margin: 9mm 0 3mm;
+    padding-top: 4mm; border-top: 1px solid var(--rule);
+    page-break-after: avoid;
+  }
+
+  h3 { font-size: 11.5pt; margin: 6mm 0 2mm; page-break-after: avoid; }
+  h4 { font-size: 10.5pt; margin: 5mm 0 2mm; page-break-after: avoid; }
+
+  p { margin: 0 0 3.2mm; orphans: 3; widows: 3; }
+
+  /* --- Lists ----------------------------------------------------------- */
+
+  ul, ol { margin: 0 0 3.5mm; padding-left: 6mm; }
+  li { margin-bottom: 1.4mm; }
+  li::marker { color: var(--accent); }
+
+  /* Contents list on page 2 */
+  .body > ol:first-of-type { columns: 2; column-gap: 10mm; }
+
+  /* --- Code ------------------------------------------------------------ */
+
+  code {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 8.6pt;
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    padding: .4mm 1.1mm;
+  }
+
+  pre {
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-left: 2.5px solid var(--accent);
+    border-radius: 3px;
+    padding: 3mm 3.5mm;
+    margin: 0 0 4mm;
+    overflow: hidden;
+    page-break-inside: avoid;
+  }
+
+  pre code {
+    background: none; border: 0; padding: 0;
+    font-size: 8.4pt; line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  /* --- Tables ---------------------------------------------------------- */
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0 0 4.5mm;
+    font-size: 9.1pt;
+    page-break-inside: avoid;
+  }
+
+  th {
+    text-align: left;
+    background: var(--panel);
+    font-size: 8.4pt;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 2mm 2.5mm;
+    border-bottom: 1.5px solid var(--accent);
+  }
+
+  td {
+    padding: 2mm 2.5mm;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+
+  td code { font-size: 8.2pt; }
+
+  /* --- Callouts -------------------------------------------------------- */
+
+  blockquote {
+    margin: 0 0 4mm;
+    padding: 3mm 4mm;
+    background: #fff7f2;
+    border-left: 2.5px solid var(--accent);
+    color: #4a3a30;
+    page-break-inside: avoid;
+  }
+
+  blockquote p:last-child { margin-bottom: 0; }
+
+  hr {
+    border: 0;
+    border-top: 1px solid var(--rule);
+    margin: 7mm 0;
+  }
+
+  a { color: var(--accent); text-decoration: none; }
+
+  strong { font-weight: 700; }
+</style></head>
+<body>
+  <section class="cover">
+    <div class="cover__mark"></div>
+    <div class="cover__brand">JIMBO</div>
+    <h1 class="cover__title">How to update the website</h1>
+    <p class="cover__subtitle">A step-by-step guide to adding, changing and removing content</p>
+    <div class="cover__meta">21 August 2026</div>
+  </section>
+  <main class="body"><h1>How to update the website</h1>
+<p>This guide is for adding, changing and removing content. You do not need to
+know how to code, and you cannot break anything permanently — if something goes
+wrong, undo your change and save again.</p>
+<p><strong>Contents</strong></p>
+<ol>
+<li>Before you start</li>
+<li>How the site is organised</li>
+<li>Add a new project</li>
+<li>Change an existing project</li>
+<li>Remove or hide a project</li>
+<li>Choose what appears on the home page</li>
+<li>Add a new page</li>
+<li>Change the service cards</li>
+<li>Change your name, menu and contact details</li>
+<li>Adding photos and videos</li>
+<li>Writing text: the six things worth knowing</li>
+<li>Rules that will stop the site building</li>
+<li>When something goes wrong</li>
+<li>Putting your changes live</li>
+</ol>
+<hr>
+<h2>1. Before you start</h2>
+<h3>What you need</h3>
+<p><strong>A text editor.</strong> Not Microsoft Word, and not TextEdit in its normal mode —
+both add invisible formatting that breaks these files. Free options that work
+properly:</p>
+<ul>
+<li>Visual Studio Code — recommended, and it
+colour-codes the files so mistakes are easier to spot</li>
+<li>Sublime Text</li>
+</ul>
+<p>Install one, then open the whole <code>Jimbo</code> folder in it (<strong>File → Open Folder</strong>).
+You will see the folders listed down the left-hand side, and you can click any
+file to edit it.</p>
+<h3>Turn on the live preview</h3>
+<p>This shows you your changes as you make them. Open the Terminal app, and type
+these two lines, pressing Enter after each:</p>
+<pre><code>cd /Users/gfay/Jimbo
+npm run dev
+</code></pre>
+<p>You will see a message like this, and then your normal prompt back:</p>
+<pre><code>Dev server running at http://localhost:4321 (pid 23570)
+</code></pre>
+<p>Now open <strong>http://localhost:4321</strong> in your web browser.</p>
+<p>Every time you save a file, the browser updates itself within a second or so.
+You do not need to refresh.</p>
+<blockquote>
+<p><strong>The preview keeps running in the background.</strong> Closing the Terminal window
+does not stop it, and neither does pressing <code>Control</code> + <code>C</code>. That is normal —
+it means you can close the window and the preview still works.</p>
+</blockquote>
+<p>When you have finished for the day, stop it by typing:</p>
+<pre><code>npm run dev:stop
+</code></pre>
+<p>Two other commands, for when you are not sure what is going on:</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>What it tells you</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>npm run dev:status</code></td>
+<td>Whether the preview is running, and on which address</td>
+</tr>
+<tr>
+<td><code>npm run dev:logs</code></td>
+<td>The recent messages, including any errors</td>
+</tr>
+</tbody>
+</table>
+<p>If you run <code>npm run dev</code> when it is already running, it simply tells you so and
+carries on — it will not start a second one or complain.</p>
+<hr>
+<h2>2. How the site is organised</h2>
+<p>There are only two ideas to understand.</p>
+<h3>Idea one: one file, one thing</h3>
+<p>Each project on the site is one file. Each page is one file. Add a file and it
+appears on the site. Delete the file and it disappears — including its menu
+link and any links pointing at it. Nothing else needs updating.</p>
+<p>These files live in the <code>src/content</code> folder:</p>
+<pre><code>src/content/
+   projects/       &lt;- one file per project in your portfolio
+   pages/          &lt;- one file per ordinary page (About, Pricing...)
+   capabilities/   &lt;- one file per service card on the home page
+</code></pre>
+<p>The <strong>file’s name becomes its web address</strong>, so a project file named
+<code>crane-assembly.md</code> becomes <code>yoursite.com/work/crane-assembly/</code>.</p>
+<p>Name files in lower case with hyphens instead of spaces: <code>crane-assembly.md</code>,
+not <code>Crane Assembly.md</code>. The <code>.md</code> on the end matters — keep it.</p>
+<h3>Idea two: settings at the top, writing underneath</h3>
+<p>Open any file in <code>src/content/projects/</code> and you will see this shape:</p>
+<pre><code class="language-markdown">---
+title: Riverside Tower Facade Sequence
+client: Northbank Facades
+year: 2025
+---
+
+Northbank were losing tenders to competitors whose systems looked simpler
+to install, even where they were not.
+</code></pre>
+<p>The part <strong>between the two <code>---</code> lines</strong> is the settings: short facts the
+website uses to build the page — the title, the client, which image to show.
+Each one is a label, then a colon, then the value.</p>
+<p>Everything <strong>below the second <code>---</code></strong> is your writing. That is the description
+that appears on the page, and you can write it normally.</p>
+<p>That is the whole system. The rest of this guide is which settings exist.</p>
+<hr>
+<h2>3. Add a new project</h2>
+<h3>Step 1 — Put your images and video in place</h3>
+<p>Copy them into the <code>public/media</code> folder. Name them in lower case with hyphens:
+<code>crane-assembly.jpg</code>, <code>crane-assembly.mp4</code>. See
+section 10 for sizes.</p>
+<h3>Step 2 — Make a copy of an existing project</h3>
+<p>The easiest and safest way to start is to copy a file that already works.</p>
+<p>In your editor, right-click <code>src/content/projects/riverside-tower-facade.md</code>,
+choose <strong>Copy</strong>, then <strong>Paste</strong>, and rename the copy to your project — for
+example <code>crane-assembly.md</code>.</p>
+<h3>Step 3 — Fill it in</h3>
+<p>Open your new file and replace the contents. Here is a complete example with
+every available setting:</p>
+<pre><code class="language-markdown">---
+title: Crane Assembly Sequence
+client: Acme Construction
+type: animation
+summary: A 60-second sequence showing how the mast sections are assembled and pinned.
+poster: /media/crane-assembly.jpg
+video: /media/crane-assembly.mp4
+ratio: 16 / 9
+year: 2025
+featured: true
+order: 2
+services:
+  - Installation animation
+  - Technical modelling
+details:
+  Sector: Lifting equipment
+  Duration: 60 seconds
+  Deliverables: 4K master, web cut
+gallery:
+  - image: /media/crane-assembly-01.jpg
+    alt: Close view of the mast pin connection
+    caption: The pin connection, shown cut away.
+    span: half
+  - image: /media/crane-assembly-02.jpg
+    alt: The completed crane on site
+    caption: Final context render.
+    span: wide
+---
+
+Write the story of the project here. What was the client's problem, what did
+you make, and what happened as a result.
+
+## What we did
+
+Use two hash marks and a space to make a subheading like the one above.
+</code></pre>
+<h3>What each setting means</h3>
+<p><strong>You must fill in these five. The site will not build without them.</strong></p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>What to put</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>title</code></td>
+<td>The project name, as you want it displayed</td>
+</tr>
+<tr>
+<td><code>client</code></td>
+<td>Who it was for</td>
+</tr>
+<tr>
+<td><code>type</code></td>
+<td>Exactly one of: <code>animation</code>, <code>stills</code> or <code>technical</code> — see note below</td>
+</tr>
+<tr>
+<td><code>summary</code></td>
+<td>One or two sentences. Shown on the project card and in Google results</td>
+</tr>
+<tr>
+<td><code>poster</code></td>
+<td>The main image, written as <code>/media/</code> then your filename</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong><code>type</code> must be spelled exactly</strong>, all in lower case, and must be one of
+those three words. It controls which filter button the project appears under
+on the Work page. A typo here is the most common mistake — see
+section 13.</p>
+</blockquote>
+<p><strong>These are all optional. Delete any line you do not need.</strong></p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>What it does</th>
+<th>If you leave it out</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>video</code></td>
+<td>Plays when a visitor hovers over the card, and gets a play button on the project page</td>
+<td>Just the image is shown</td>
+</tr>
+<tr>
+<td><code>ratio</code></td>
+<td>The shape of the big image on the project page. <code>16 / 9</code> is widescreen, <code>3 / 2</code> is a standard photo shape</td>
+<td>Widescreen</td>
+</tr>
+<tr>
+<td><code>year</code></td>
+<td>Shown in the facts panel</td>
+<td>Not shown</td>
+</tr>
+<tr>
+<td><code>featured</code></td>
+<td><code>true</code> makes it eligible for the home page</td>
+<td>Not on the home page</td>
+</tr>
+<tr>
+<td><code>order</code></td>
+<td>Sorts the Work page. <strong>Lower numbers come first</strong> — 1 appears before 10</td>
+<td>Goes to the end</td>
+</tr>
+<tr>
+<td><code>services</code></td>
+<td>The grey pill labels on the project page</td>
+<td>No pills</td>
+</tr>
+<tr>
+<td><code>details</code></td>
+<td>The facts panel. You can invent your own labels here — see below</td>
+<td>Only Client, Type and Year</td>
+</tr>
+<tr>
+<td><code>gallery</code></td>
+<td>Extra images below the description</td>
+<td>No gallery</td>
+</tr>
+<tr>
+<td><code>draft</code></td>
+<td><code>true</code> hides it from the live site</td>
+<td>It is published</td>
+</tr>
+</tbody>
+</table>
+<h3>About <code>details</code></h3>
+<p>This one is free-form: whatever labels you write on the left appear in the
+facts panel exactly as you typed them.</p>
+<pre><code class="language-yaml">details:
+  Sector: Lifting equipment
+  Duration: 60 seconds
+  Anything you like: Any value you like
+</code></pre>
+<p>The two-space indent at the start of those lines is required. See
+section 12.</p>
+<h3>About <code>gallery</code></h3>
+<p>Each image starts with a hyphen and a space. The four settings underneath it
+must line up with each other:</p>
+<pre><code class="language-yaml">gallery:
+  - image: /media/crane-assembly-01.jpg
+    alt: Close view of the mast pin connection
+    caption: The pin connection, shown cut away.
+    span: half
+</code></pre>
+<ul>
+<li><code>image</code> — required, the file to show</li>
+<li><code>alt</code> — a plain description for blind visitors and for when an image fails to
+load. Describe what is in the picture, not “photo of crane”</li>
+<li><code>caption</code> — optional, printed in small grey text underneath</li>
+<li><code>span</code> — <code>half</code> for a normal image, <code>wide</code> to run it the full page width</li>
+</ul>
+<p>A gallery item can be a video too. Add a <code>video:</code> line under <code>image:</code>, and the
+image becomes its holding frame.</p>
+<h3>Step 4 — Check it</h3>
+<p>Look at http://localhost:4321/work/ — your project should be there. Click it.</p>
+<hr>
+<h2>4. Change an existing project</h2>
+<p>Open its file in <code>src/content/projects/</code>, edit, and save. The browser updates
+straight away.</p>
+<p>To change the wording on the page, edit the text below the second <code>---</code>. To
+change a fact, image or setting, edit the lines above it.</p>
+<hr>
+<h2>5. Remove or hide a project</h2>
+<p><strong>To remove it permanently:</strong> delete the file. Everything referring to it
+disappears with it — the Work page card, the project page, and the previous/
+next links on neighbouring projects.</p>
+<p><strong>To hide it temporarily</strong>, which is safer, add a <code>draft</code> line to the settings:</p>
+<pre><code class="language-yaml">draft: true
+</code></pre>
+<p>A draft still shows in your local preview at http://localhost:4321 so you can
+keep working on it, but it is left out of the version you publish. Change it to
+<code>draft: false</code>, or delete the line, to publish it.</p>
+<p>This is the right choice for work under NDA, or a project you are still writing
+up.</p>
+<hr>
+<h2>6. Choose what appears on the home page</h2>
+<h3>Which projects appear</h3>
+<p>The home page shows projects that have <code>featured: true</code> in their settings, and
+it shows them in <code>order</code> sequence — lowest number first.</p>
+<p>To swap a project onto the home page:</p>
+<ol>
+<li>Open the project you want to add, set <code>featured: true</code>, give it a low
+<code>order</code> number such as <code>1</code>.</li>
+<li>Open the one you want to drop, and either set <code>featured: false</code> or delete
+the line.</li>
+</ol>
+<p>By default four are shown. To change that, open <code>src/site.config.ts</code>, find the
+block starting <code>type: 'featured'</code>, and change the <code>limit</code> number.</p>
+<h3>Which sections appear, and in what order</h3>
+<p>Open <strong><code>src/site.config.ts</code></strong> and scroll to <code>HOME_SECTIONS</code>. This is a list of
+the bands that make up the home page, top to bottom:</p>
+<pre><code>hero          the big opening statement and background video
+featured      the grid of selected projects
+stats         the row of numbers (12+, 400+, 30+)
+capabilities  the &quot;What we make&quot; service cards
+process       the numbered &quot;How a project runs&quot; stages
+clients       the row of client names
+cta           the closing &quot;Got a product...&quot; panel
+</code></pre>
+<p>Each one is a block in curly brackets <code>{ }</code>.</p>
+<ul>
+<li><strong>To remove a band from the home page,</strong> delete its whole block, from its
+opening <code>{</code> to the <code>},</code> that closes it.</li>
+<li><strong>To move a band,</strong> cut the whole block and paste it higher or lower in the
+list.</li>
+<li><strong>To change its wording,</strong> edit the text in quote marks inside the block.</li>
+</ul>
+<p>The text in the <code>stats</code>, <code>process</code>, <code>clients</code> and <code>cta</code> bands lives here too,
+so this is where you change the numbers, the four process stages and the client
+names.</p>
+<blockquote>
+<p>Delete the <strong>whole</strong> block including its final <code>},</code>. If you leave a stray
+bracket behind the site will not build — undo with <code>Command</code> + <code>Z</code> and try
+again.</p>
+</blockquote>
+<hr>
+<h2>7. Add a new page</h2>
+<p>This is for ordinary pages such as About, Pricing, FAQ or Terms.</p>
+<p>Create a new file in <code>src/content/pages/</code>. The name becomes the address, so
+<code>faq.md</code> becomes <code>yoursite.com/faq/</code>.</p>
+<pre><code class="language-markdown">---
+title: Frequently asked questions
+description: Answers to the questions we are asked most often about pricing, timescales and file formats.
+eyebrow: Help
+nav: true
+navOrder: 30
+---
+
+## How long does an animation take?
+
+Four to six weeks for a full installation sequence.
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Required?</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>title</code></td>
+<td>Yes</td>
+<td>The page heading</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>Yes</td>
+<td>The larger intro line under the heading, also used by Google</td>
+</tr>
+<tr>
+<td><code>eyebrow</code></td>
+<td>No</td>
+<td>Small orange label above the heading</td>
+</tr>
+<tr>
+<td><code>nav</code></td>
+<td>No</td>
+<td><code>true</code> adds it to the menu at the top of every page</td>
+</tr>
+<tr>
+<td><code>navOrder</code></td>
+<td>No</td>
+<td>Its position in the menu. Lower numbers sit further left</td>
+</tr>
+<tr>
+<td><code>hero</code></td>
+<td>No</td>
+<td>A wide banner image, e.g. <code>/media/about-hero.jpg</code></td>
+</tr>
+<tr>
+<td><code>draft</code></td>
+<td>No</td>
+<td><code>true</code> hides it from the live site</td>
+</tr>
+</tbody>
+</table>
+<p><strong>You do not have to add the page to the menu yourself.</strong> Setting <code>nav: true</code>
+puts it in the top menu and the footer automatically.</p>
+<p>The current menu order is Work (0), About (10), Pricing (20), Contact (100). To
+slot a new page between About and Pricing, give it <code>navOrder: 15</code>.</p>
+<p><strong>To remove a page,</strong> delete its file. To take it out of the menu but keep the
+page reachable by its address, change <code>nav: true</code> to <code>nav: false</code>.</p>
+<hr>
+<h2>8. Change the service cards</h2>
+<p>These are the cards under “What we make” on the home page. One file each, in
+<code>src/content/capabilities/</code>:</p>
+<pre><code class="language-markdown">---
+title: Installation animation
+blurb: Step-by-step sequences that show a product being fitted the way it is actually fitted.
+icon: film
+order: 10
+---
+
+- Full sequences for tender and trade stands
+- Short silent loops for product pages
+- Toolbox-talk cuts for site use
+</code></pre>
+<ul>
+<li><code>blurb</code> is the paragraph on the card. Keep it to a sentence or two.</li>
+<li>The bullet list underneath the <code>---</code> becomes the small list at the bottom of
+the card. Start each line with a hyphen and a space.</li>
+<li><code>order</code> sorts the cards, lowest first.</li>
+<li><code>icon</code> picks the small symbol. Choose one of: <code>film</code>, <code>image</code>, <code>layers</code>,
+<code>cube</code>, <code>ruler</code>, <code>compass</code>. A name that is not on the list quietly falls back
+to the cube rather than breaking anything.</li>
+</ul>
+<p>Add a file for a new card, delete a file to remove one. The cards re-flow to
+fill the space by themselves.</p>
+<hr>
+<h2>9. Change your name, menu and contact details</h2>
+<p>All in one file: <strong><code>src/site.config.ts</code></strong>.</p>
+<p>It looks more technical than the content files, but you are only changing text
+between quote marks. Do not remove the quote marks, the commas, or the curly
+brackets.</p>
+<pre><code class="language-js">export const SITE = {
+  name: 'JIMBO',
+  tagline: '3D visualisation for the construction industry',
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>What you want to change</th>
+<th>Look for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Company name in the header and footer</td>
+<td><code>name:</code> near the top</td>
+</tr>
+<tr>
+<td>The line under the logo in the footer</td>
+<td><code>tagline:</code></td>
+</tr>
+<tr>
+<td>Your web address, once you have one</td>
+<td><code>url:</code></td>
+</tr>
+<tr>
+<td>Email, phone, location</td>
+<td>The <code>CONTACT</code> block</td>
+</tr>
+<tr>
+<td>LinkedIn, Vimeo, Instagram links</td>
+<td>The <code>SOCIAL</code> block — delete any line you do not use</td>
+</tr>
+<tr>
+<td>The orange “Start a project” button</td>
+<td><code>HEADER_CTA</code></td>
+</tr>
+<tr>
+<td>The Work / Contact menu links</td>
+<td>The <code>NAV</code> block</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Pages you created yourself do not need adding to <code>NAV</code> — <code>nav: true</code> in the
+page’s own file handles it. <code>NAV</code> is only for Work and Contact, which are
+built in.</p>
+</blockquote>
+<hr>
+<h2>10. Adding photos and videos</h2>
+<h3>Where they go</h3>
+<p>Everything goes in the <strong><code>public/media</code></strong> folder. Just drag the files in.</p>
+<h3>How to refer to them</h3>
+<p>Whatever the filename is, write it in your settings starting with <code>/media/</code>:</p>
+<table>
+<thead>
+<tr>
+<th>File you dropped in</th>
+<th>What you type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>crane-assembly.jpg</code></td>
+<td><code>poster: /media/crane-assembly.jpg</code></td>
+</tr>
+<tr>
+<td><code>crane-assembly.mp4</code></td>
+<td><code>video: /media/crane-assembly.mp4</code></td>
+</tr>
+</tbody>
+</table>
+<p>Note the <strong>forward slash at the start</strong>, and that it is <code>/media/</code> — not
+<code>public/media/</code>, and not the long path from your own computer.</p>
+<h3>Naming</h3>
+<p>Lower case, hyphens instead of spaces, no accents or symbols:</p>
+<ul>
+<li>Good: <code>crane-assembly-01.jpg</code></li>
+<li>Bad: <code>Crane Assembly 01.jpg</code>, <code>crane_assembly(final).jpg</code></li>
+</ul>
+<h3>What size to export</h3>
+<p>Files here are served to visitors exactly as you save them — nothing shrinks
+them for you. A 40MB render will make the page painfully slow on a phone.</p>
+<table>
+<thead>
+<tr>
+<th>What it is for</th>
+<th>Size</th>
+<th>Format</th>
+<th>Aim for under</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Project card / main image</td>
+<td>1600 × 900</td>
+<td>JPG, quality 80</td>
+<td>250 KB</td>
+</tr>
+<tr>
+<td>Gallery image</td>
+<td>1500 × 1000</td>
+<td>JPG, quality 80</td>
+<td>250 KB</td>
+</tr>
+<tr>
+<td>Home page background</td>
+<td>1920 × 1080</td>
+<td>JPG, quality 80</td>
+<td>400 KB</td>
+</tr>
+<tr>
+<td>Video</td>
+<td>1920 × 1080</td>
+<td>MP4 (H.264)</td>
+<td>5 MB</td>
+</tr>
+<tr>
+<td>Wide page banner</td>
+<td>1680 × 720</td>
+<td>JPG, quality 80</td>
+<td>300 KB</td>
+</tr>
+</tbody>
+</table>
+<p>For video, keep clips short and loopable, remove the audio track, and tick
+<strong>“web optimised”</strong> or <strong>“fast start”</strong> when exporting — that lets playback
+begin before the file has finished downloading.</p>
+<h3>Replacing the placeholder images</h3>
+<p>The site currently ships with generated placeholder images so it looks
+complete. They are the dark grey ones with an orange cube and the word
+PLACEHOLDER.</p>
+<p><strong>To replace one, save your real file over it with exactly the same name.</strong>
+Nothing else needs to change. For example, save your real render as
+<code>riverside-tower.jpg</code> into <code>public/media</code>, replacing the placeholder of that
+name, and it appears everywhere that project is shown.</p>
+<hr>
+<h2>11. Writing text: the six things worth knowing</h2>
+<p>The writing below the second <code>---</code> uses a simple formatting system. Plain
+paragraphs work exactly as you would expect — just type, and leave a blank line
+between paragraphs.</p>
+<p><strong>1. A subheading</strong> — two hash marks and a space:</p>
+<pre><code class="language-markdown">## What we did
+</code></pre>
+<p><strong>2. A smaller subheading</strong> — three hash marks:</p>
+<pre><code class="language-markdown">### Materials
+</code></pre>
+<p><strong>3. Bold</strong> — two asterisks either side:</p>
+<pre><code class="language-markdown">This was the **most important** part.
+</code></pre>
+<p><strong>4. A bullet list</strong> — a hyphen and a space, one item per line:</p>
+<pre><code class="language-markdown">- Full sequences for trade stands
+- Short loops for product pages
+</code></pre>
+<p><strong>5. A numbered list</strong> — the number, a full stop, and a space:</p>
+<pre><code class="language-markdown">1. Technical review
+2. Modelling
+</code></pre>
+<p><strong>6. A link</strong> — the words in square brackets, the address in round brackets:</p>
+<pre><code class="language-markdown">See our [pricing page](/pricing/) for guide costs.
+</code></pre>
+<p>Leave a blank line before and after headings and lists. That is the single most
+common formatting mistake.</p>
+<hr>
+<h2>12. Rules that will stop the site building</h2>
+<p>There are only four, and all of them apply to the <strong>settings area between the
+<code>---</code> lines</strong>, not to your writing.</p>
+<h3>Rule 1 — If your text contains a colon, wrap it in quotes</h3>
+<p>A colon is how the settings tell a label from a value, so a colon inside your
+text confuses it.</p>
+<pre><code class="language-yaml">title: Riverside: Phase 2          # BREAKS
+title: &quot;Riverside: Phase 2&quot;        # correct
+</code></pre>
+<p>This catches people out with titles like <code>Case study: Acme</code>. If in doubt,
+quotes around a value are always safe.</p>
+<h3>Rule 2 — Indent with spaces, never with the Tab key</h3>
+<p>Some settings have lines indented underneath them. Those indents must be
+<strong>two spaces</strong>. Pressing Tab inserts a different character that looks identical
+on screen but breaks the file.</p>
+<p>In Visual Studio Code, pressing Tab inserts spaces by default, so you are
+usually safe — but never paste indented text in from Word.</p>
+<h3>Rule 3 — Always put a space after the colon</h3>
+<pre><code class="language-yaml">title:Crane Assembly     # BREAKS
+title: Crane Assembly    # correct
+</code></pre>
+<h3>Rule 4 — Do not delete the <code>---</code> lines</h3>
+<p>Every content file must start with <code>---</code> on the very first line, and have a
+second <code>---</code> closing the settings. Without both, the file is not recognised.</p>
+<h3>And save as plain text</h3>
+<p>If you use TextEdit, choose <strong>Format → Make Plain Text</strong> before saving, and
+make sure the file ends in <code>.md</code> and not <code>.md.rtf</code> or <code>.md.txt</code>. This is why a
+proper code editor is worth installing.</p>
+<hr>
+<h2>13. When something goes wrong</h2>
+<p>If a change breaks something, the Terminal window shows a red error and the
+browser shows an error page. <strong>Nothing is damaged.</strong> Fix the file and save, and
+it recovers on its own. If you cannot see what is wrong, press <code>Command</code> + <code>Z</code>
+in your editor to undo, and save again.</p>
+<p>Here are the errors you are most likely to meet, and what they actually mean.</p>
+<h3>“Invalid option: expected one of animation | stills | technical”</h3>
+<pre><code>[InvalidContentEntryDataError] projects → crane-assembly data does not match
+collection schema.
+
+  type: Invalid option: expected one of &quot;animation&quot;|&quot;stills&quot;|&quot;technical&quot;
+</code></pre>
+<p><strong>What it means:</strong> the <code>type</code> line in <code>crane-assembly.md</code> has a typo, or a
+capital letter. It must be exactly <code>animation</code>, <code>stills</code> or <code>technical</code>, all
+lower case.</p>
+<p>The name after the arrow — <code>crane-assembly</code> — is the file to open.</p>
+<h3>“client: Required”</h3>
+<pre><code>  client**: **client: Required
+  poster**: **poster: Required
+</code></pre>
+<p><strong>What it means:</strong> you have left out a setting that must be there. This lists
+each missing one by name. Add the missing lines.</p>
+<h3>“bad indentation of a mapping entry”</h3>
+<p><strong>What it means:</strong> almost always an unquoted colon in your text (Rule 1), or a
+Tab used for indenting (Rule 2). The error gives a line number:
+<code>crane-assembly.md:1:16</code> means line 1.</p>
+<h3>An image shows as a broken icon, or a grey box</h3>
+<p>The site still builds — a missing image is not an error. Check:</p>
+<ol>
+<li>Is the file actually in <code>public/media</code>?</li>
+<li>Does the name match <strong>exactly</strong>, including capital letters? <code>Crane.jpg</code> and
+<code>crane.jpg</code> are different files as far as the web is concerned.</li>
+<li>Did you write <code>/media/crane.jpg</code> and not <code>public/media/crane.jpg</code>?</li>
+</ol>
+<h3>A project is not showing up</h3>
+<ul>
+<li>If it is missing from the Work page, check for <code>draft: true</code> in its settings.</li>
+<li>If it is missing from the home page only, it needs <code>featured: true</code>, and it
+may be below the four-project cut-off — lower its <code>order</code> number.</li>
+</ul>
+<h3>Everything looks broken and unstyled</h3>
+<p>Restart the preview: <code>npm run dev:stop</code>, then <code>npm run dev</code>.</p>
+<hr>
+<h2>14. Putting your changes live</h2>
+<p>Editing files only changes your own copy. To produce the version that goes on
+the web, run:</p>
+<pre><code>npm run build
+</code></pre>
+<p>This creates a folder called <code>dist</code>. Upload <strong>the contents of that folder</strong> —
+not the folder itself — to your web host, replacing what is there.</p>
+<p>Before the very first upload, someone will need to set your real web address in
+<code>src/site.config.ts</code>. There is a checklist at the end of <code>README.md</code>.</p>
+<h3>A safe habit</h3>
+<p>Before making a big change, copy the file you are about to edit and add <code>-old</code>
+to the copy’s name (<code>about-old.md</code>). If it goes wrong, delete your edited
+version and rename the copy back.</p>
+<p>Remember that a file in <code>src/content/pages</code> is live once it exists, so do not
+leave <code>about-old.md</code> sitting in there — it would become a real page. Keep
+backups outside the project folder, on your desktop.</p>
+</main>
+</body>
+</html>

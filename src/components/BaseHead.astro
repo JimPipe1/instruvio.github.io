@@ -1,0 +1,61 @@
+---
+/**
+ * Everything that belongs in <head>: metadata, social share tags and the
+ * global stylesheet. Rendered once per page by the Base layout.
+ */
+import { Font } from 'astro:assets';
+import '../styles/global.css';
+import { SITE } from '../site.config.ts';
+import { withBase } from '../lib/content.ts';
+
+interface Props {
+  title: string;
+  description?: string;
+  /** Social share image, a path inside `public/`. */
+  image?: string;
+  /** Set true on pages that should be kept out of search results. */
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description = SITE.description,
+  image = '/media/og-default.jpg',
+  noindex = false,
+} = Astro.props;
+
+// The home page shows the brand on its own; every other page is suffixed.
+const fullTitle = title === SITE.name ? `${SITE.name} — ${SITE.tagline}` : `${title} — ${SITE.name}`;
+
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const socialImage = new URL(withBase(image), Astro.site);
+---
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="generator" content={Astro.generator} />
+<meta name="theme-color" content="#000000" />
+
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+{noindex && <meta name="robots" content="noindex, nofollow" />}
+
+<link rel="icon" type="image/svg+xml" href={withBase('/favicon.svg')} />
+<link rel="sitemap" href={withBase('/sitemap-index.xml')} />
+
+<!-- Self-hosted fonts, preloaded so headings do not reflow on first paint. -->
+<Font cssVariable="--font-display" preload />
+<Font cssVariable="--font-body" preload />
+
+<!-- Social sharing -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content={SITE.name} />
+<meta property="og:title" content={fullTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={socialImage} />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={fullTitle} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={socialImage} />

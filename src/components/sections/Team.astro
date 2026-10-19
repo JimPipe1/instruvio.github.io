@@ -1,0 +1,156 @@
+---
+/**
+ * Team members as cards. { type: 'team' } in src/site.config.ts.
+ *
+ * Each member needs a name and role. `photo`, `bio` and `linkedin` are
+ * optional. With no photo, the card shows the person's initials instead, so
+ * the section looks finished before headshots exist.
+ *
+ * Photos: square JPGs, around 800 × 800, in public/media/team/.
+ */
+import { withBase } from '../../lib/content.ts';
+
+interface Member {
+  name: string;
+  role: string;
+  bio?: string;
+  photo?: string;
+  linkedin?: string;
+}
+
+interface Props {
+  title: string;
+  intro?: string;
+  members: Member[];
+}
+
+const { title, intro, members } = Astro.props;
+
+const initials = (name: string) =>
+  name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]!.toUpperCase())
+    .join('');
+---
+
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <h2>{title}</h2>
+      {intro && <p>{intro}</p>}
+    </div>
+
+    <ul class="team">
+      {
+        members.map((member) => (
+          <li class="team__member">
+            <div class="team__photo">
+              {member.photo ? (
+                <img
+                  src={withBase(member.photo)}
+                  alt={`Portrait of ${member.name}`}
+                  width="800"
+                  height="800"
+                  loading="lazy"
+                  decoding="async"
+                />
+              ) : (
+                <span class="team__initials" aria-hidden="true">
+                  {initials(member.name)}
+                </span>
+              )}
+            </div>
+            <h3 class="team__name">{member.name}</h3>
+            <p class="team__role">{member.role}</p>
+            {member.bio && <p class="team__bio">{member.bio}</p>}
+            {member.linkedin && (
+              <a class="team__link" href={member.linkedin} rel="noopener" target="_blank">
+                LinkedIn<span class="visually-hidden"> profile for {member.name}</span>
+              </a>
+            )}
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .team {
+    display: grid;
+    gap: var(--space-xl);
+    /* One column on a phone, then as many ~15rem cards as fit. */
+    grid-template-columns: repeat(auto-fill, minmax(min(15rem, 100%), 1fr));
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .team__photo {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 1;
+    overflow: hidden;
+    margin-bottom: var(--space-md);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+  }
+
+  .team__photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Cards without a photo cycle through the logo's four faces. */
+  .team__member:nth-child(4n + 1) .team__photo {
+    background: var(--magenta);
+  }
+  .team__member:nth-child(4n + 2) .team__photo {
+    background: var(--amber);
+  }
+  .team__member:nth-child(4n + 3) .team__photo {
+    background: var(--crimson);
+  }
+  .team__member:nth-child(4n + 4) .team__photo {
+    background: var(--peach);
+  }
+
+  /* Every tile is a bright, saturated fill, so the initials are black on all
+     four — white would fall below 4:1 on the magenta and the amber. */
+  .team__initials {
+    color: var(--accent-ink);
+    font-family: var(--font-heading);
+    font-size: var(--step-4);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .team__name {
+    font-size: var(--step-1);
+  }
+
+  .team__role {
+    margin-top: var(--space-xs);
+    color: var(--accent);
+    font-size: var(--step--1);
+    font-weight: 600;
+  }
+
+  .team__bio {
+    margin-top: var(--space-sm);
+    color: var(--text-muted);
+    font-size: var(--step--1);
+  }
+
+  .team__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin-top: var(--space-xs);
+    font-size: var(--step--1);
+  }
+</style>

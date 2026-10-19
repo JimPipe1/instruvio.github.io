@@ -1,0 +1,230 @@
+---
+/**
+ * TRAINING DEMOS — the list of sample interactive modules.
+ *
+ * Add a module: create its content file in src/lib/training/, its page in
+ * src/pages/training/, then add an entry to MODULES below.
+ */
+import Base from '../../layouts/Base.astro';
+import { withBase } from '../../lib/content.ts';
+import * as manualHandling from '../../lib/training/manual-handling.ts';
+// Hidden for now — uncomment this import and its MODULES entry below to
+// put Cutting Carbon in Construction back on the page.
+// import * as lowCarbon from '../../lib/training/low-carbon-construction.ts';
+// Hidden for now — uncomment this import and its MODULES entry below to
+// put RainSafe Tank Installation back on the page.
+// import * as rainsafe from '../../lib/training/rainsafe-installation.ts';
+import { WALKTHROUGH, STEPS } from '../../lib/walkthrough/pacsana.ts';
+
+const MODULES = [
+  {
+    href: '/training/manual-handling/',
+    module: manualHandling.MODULE,
+    slides: manualHandling.TOTAL_SLIDES,
+    questions: manualHandling.TOTAL_QUESTIONS,
+    sectors: 'Construction · Health & safety',
+    sections: manualHandling.SECTIONS.map((s) => s.title),
+  },
+
+  // ---- Cutting Carbon in Construction — hidden from the list (uncomment to
+  //      restore, along with its import above). The module itself still works
+  //      at /training/low-carbon-construction/.
+  // {
+  //   href: '/training/low-carbon-construction/',
+  //   module: lowCarbon.MODULE,
+  //   slides: lowCarbon.TOTAL_SLIDES,
+  //   questions: lowCarbon.TOTAL_QUESTIONS,
+  //   sectors: 'Construction · Sustainability',
+  //   sections: lowCarbon.SECTIONS.map((s) => s.title),
+  // },
+
+  // ---- RainSafe Tank Installation — hidden from the list (uncomment to
+  //      restore, along with its import above). The module itself still works
+  //      at /training/rainsafe-installation/.
+  // {
+  //   href: '/training/rainsafe-installation/',
+  //   module: rainsafe.MODULE,
+  //   slides: rainsafe.TOTAL_SLIDES,
+  //   questions: rainsafe.TOTAL_QUESTIONS,
+  //   sectors: 'Civil engineering · Product installation',
+  //   sections: rainsafe.SECTIONS.map((s) => s.title),
+  // },
+];
+
+const WALKTHROUGHS = [
+  {
+    href: '/walkthrough/pacsana/',
+    title: WALKTHROUGH.title,
+    subtitle: WALKTHROUGH.subtitle,
+    steps: STEPS.length,
+    duration: WALKTHROUGH.duration,
+    sectors: 'Health tech · Product',
+    topics: ['Guided tour', 'App screens', 'Narration script'],
+  },
+];
+---
+
+<Base
+  title="Demos"
+  description="Sample interactive work: CPD modules with questions and scoring, and a step-by-step product walkthrough."
+>
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">Interactive samples</p>
+        <h1>Demos</h1>
+        <p>
+          Working examples of the interactive pieces we build: CPD modules with questions and
+          scoring, and product walkthroughs that show software being used. Everything runs in the
+          browser, and the training modules export to an LMS.
+        </p>
+      </div>
+
+      <h2 class="group-title">Training modules</h2>
+      <ul class="modules">
+        {
+          MODULES.map((entry) => (
+            <li class="module-card">
+              <p class="module-card__sector">{entry.sectors}</p>
+              <h2 class="module-card__title">
+                <a href={withBase(entry.href)}>{entry.module.title}</a>
+              </h2>
+              <p class="module-card__body">{entry.module.subtitle}</p>
+              <ul class="module-card__sections">
+                {entry.sections.map((title) => (
+                  <li>{title}</li>
+                ))}
+              </ul>
+              <p class="module-card__meta">
+                {entry.slides} steps · {entry.questions} questions · pass at {entry.module.passMark}/
+                {entry.questions} · {entry.module.duration}
+              </p>
+            </li>
+          ))
+        }
+      </ul>
+
+      <h2 class="group-title group-title--spaced">Product walkthroughs</h2>
+      <ul class="modules">
+        {
+          WALKTHROUGHS.map((entry) => (
+            <li class="module-card">
+              <p class="module-card__sector">{entry.sectors}</p>
+              <h3 class="module-card__title">
+                <a href={withBase(entry.href)}>{entry.title}</a>
+              </h3>
+              <p class="module-card__body">{entry.subtitle}</p>
+              <ul class="module-card__sections">
+                {entry.topics.map((topic) => (
+                  <li>{topic}</li>
+                ))}
+              </ul>
+              <p class="module-card__meta">
+                {entry.steps} steps · {entry.duration}
+              </p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .group-title {
+    margin-bottom: var(--space-lg);
+    font-size: var(--step-1);
+  }
+
+  .group-title--spaced {
+    margin-top: var(--space-3xl);
+  }
+
+  .modules {
+    display: grid;
+    gap: var(--space-xl);
+    grid-template-columns: 1fr;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (min-width: 48rem) {
+    .modules {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .module-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-xl);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--bg-raised);
+    transition:
+      border-color var(--transition),
+      transform var(--transition);
+  }
+
+  .module-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .module-card__sector {
+    color: var(--accent);
+    font-family: var(--font-heading);
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .module-card__title {
+    margin-top: var(--space-sm);
+    font-size: var(--step-2);
+  }
+
+  .module-card__title a {
+    text-decoration: none;
+  }
+
+  /* Stretch the title link across the whole card. */
+  .module-card__title a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .module-card__body {
+    margin-top: var(--space-md);
+    color: var(--text-muted);
+  }
+
+  .module-card__sections {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    margin: var(--space-lg) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .module-card__sections li {
+    padding: 0.2rem 0.7rem;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    background: var(--bg);
+    color: var(--text-muted);
+    font-size: var(--step--1);
+  }
+
+  .module-card__meta {
+    margin-top: auto;
+    padding-top: var(--space-lg);
+    color: var(--text-faint);
+    font-size: var(--step--1);
+  }
+</style>

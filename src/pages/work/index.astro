@@ -1,0 +1,177 @@
+---
+/**
+ * WORK — the full project listing.
+ *
+ * Every Markdown file in src/content/projects/ appears here automatically.
+ * The filter buttons come from WORK_FILTERS in src/site.config.ts.
+ */
+import Base from '../../layouts/Base.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { WORK_FILTERS } from '../../site.config.ts';
+import { getProjects } from '../../lib/content.ts';
+
+const projects = await getProjects();
+
+// Only offer a filter if there is at least one project behind it, so the page
+// never shows a button that leads to an empty grid.
+const usedTypes = new Set(projects.map((p) => p.data.type));
+const filters = WORK_FILTERS.filter((f) => f.value === 'all' || usedTypes.has(f.value as any));
+---
+
+<Base
+  title="Work"
+  description="Explainer videos, CPD and training modules, SaaS onboarding and product videos."
+>
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">Portfolio</p>
+        <h1>Ideas Made Simple</h1>
+        <p>
+          Product videos, Explainers, CPD modules and Walkthroughs for businesses and organisations
+          with something complex to explain.
+        </p>
+      </div>
+
+      {
+        filters.length > 1 && (
+          <div class="filters" role="group" aria-label="Filter projects by type">
+            {filters.map((filter, index) => (
+              <button
+                class="filters__btn"
+                type="button"
+                data-filter={filter.value}
+                aria-pressed={index === 0 ? 'true' : 'false'}
+              >
+                {filter.label}
+              </button>
+            ))}
+          </div>
+        )
+      }
+
+      <div class="grid work-grid" id="work-grid">
+        {
+          projects.map((project, index) => (
+            <ProjectCard project={project} loading={index < 3 ? 'eager' : 'lazy'} />
+          ))
+        }
+      </div>
+
+      <p class="work-empty" id="work-empty" hidden>Nothing in that category yet.</p>
+
+      {
+        projects.length === 0 && (
+          <p class="work-empty">
+            No projects yet. Add a Markdown file to <code>src/content/projects/</code> to see it
+            here.
+          </p>
+        )
+      }
+    </div>
+  </section>
+</Base>
+
+<style>
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-2xl);
+    padding-bottom: var(--space-lg);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .filters__btn {
+    min-height: 2.5rem;
+    padding: var(--space-xs) var(--space-lg);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: var(--font-heading);
+    font-size: var(--step--1);
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+      background var(--transition),
+      border-color var(--transition),
+      color var(--transition);
+  }
+
+  .filters__btn:hover {
+    border-color: var(--border-strong);
+    color: var(--text);
+  }
+
+  .filters__btn[aria-pressed='true'] {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-ink);
+  }
+
+  .work-grid {
+    gap: var(--space-2xl) var(--space-xl);
+  }
+
+  /* Three across on a laptop; the shared .grid rule handles one and two. */
+  @media (min-width: 64rem) {
+    .work-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .work-empty {
+    padding-block: var(--space-2xl);
+    color: var(--text-muted);
+  }
+</style>
+
+<script>
+  /**
+   * Filtering, done in the browser: all the cards are already in the HTML, so
+   * switching category is instant and needs no extra page loads.
+   *
+   * The chosen category is mirrored into the URL hash (/work/#explainer) so a
+   * filtered view can be linked to or reloaded without losing the selection.
+   */
+  const buttons = document.querySelectorAll<HTMLButtonElement>('.filters__btn');
+  const grid = document.querySelector<HTMLElement>('#work-grid');
+  const empty = document.querySelector<HTMLElement>('#work-empty');
+
+  if (buttons.length > 0 && grid) {
+    const cards = Array.from(grid.querySelectorAll<HTMLElement>('[data-type]'));
+
+    const apply = (value: string) => {
+      let visible = 0;
+
+      for (const card of cards) {
+        const show = value === 'all' || card.dataset.type === value;
+        card.hidden = !show;
+        if (show) visible++;
+      }
+
+      for (const button of buttons) {
+        button.setAttribute('aria-pressed', String(button.dataset.filter === value));
+      }
+
+      if (empty) empty.hidden = visible > 0 || cards.length === 0;
+    };
+
+    for (const button of buttons) {
+      button.addEventListener('click', () => {
+        const value = button.dataset.filter ?? 'all';
+        apply(value);
+        // replaceState rather than a hash assignment, so filtering does not
+        // fill the back button with history entries or scroll the page.
+        history.replaceState(null, '', value === 'all' ? location.pathname : `#${value}`);
+      });
+    }
+
+    // Honour a category in the URL on arrival, e.g. /work/#cpd
+    const fromHash = location.hash.replace('#', '');
+    if (fromHash && Array.from(buttons).some((b) => b.dataset.filter === fromHash)) {
+      apply(fromHash);
+    }
+  }
+</script>

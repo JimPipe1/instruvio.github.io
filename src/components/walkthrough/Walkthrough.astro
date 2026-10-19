@@ -1,0 +1,347 @@
+---
+/**
+ * PRODUCT WALKTHROUGH PLAYER
+ *
+ * A guided tour: each step shows the app screen, the narration beside it, and
+ * a tall illustration of the person doing whatever the step describes.
+ *
+ * Takes a walkthrough's metadata and steps as props, so a second product tour
+ * is a new content file plus a two-line page.
+ *
+ * Without JavaScript every step is shown in order as a scrollable document.
+ */
+import PhoneScreen from './PhoneScreen.astro';
+import LifeScene from './LifeScene.astro';
+import type { WalkStep } from '../../lib/walkthrough/pacsana.ts';
+
+interface Props {
+  walkthrough: {
+    product: string;
+    title: string;
+    subtitle: string;
+    duration: string;
+    disclaimer: string;
+  };
+  steps: WalkStep[];
+}
+
+const { walkthrough: W, steps } = Astro.props;
+---
+
+<section class="section">
+  <div class="container">
+    <div class="walk-head">
+      <p class="eyebrow">Sample product walkthrough</p>
+      <h1>{W.title}</h1>
+      <p class="walk-lede">{W.subtitle}</p>
+      <ul class="walk-facts">
+        <li><strong>{steps.length}</strong> steps</li>
+        <li><strong>{W.duration}</strong></li>
+        <li>Narration script included</li>
+      </ul>
+    </div>
+
+    <div class="walk" id="walk" data-total={steps.length}>
+      <!-- ----------------------------------------------------------- stage -->
+      <div class="stage">
+        <div class="stage__bar">
+          <div class="prog"><div class="prog__fill" id="walk-fill"></div></div>
+          <p class="prog__text" id="walk-text" aria-live="polite">Step 1 of {steps.length}</p>
+        </div>
+
+        <div class="steps">
+          {
+            steps.map((step, i) => (
+              <article class="wstep" data-step={i}>
+                <PhoneScreen name={step.screen} alt={step.alt} class="wstep__phone" />
+                <div class="wstep__text">
+                  <p class="wstep__count">
+                    Step {i + 1} of {steps.length}
+                  </p>
+                  <h2 class="wstep__title" tabindex="-1">{step.title}</h2>
+                  <p class="wstep__voice">“{step.voice}”</p>
+                  <ul class="wstep__body">
+                    {step.body.map((linetext) => (
+                      <li>{linetext}</li>
+                    ))}
+                  </ul>
+                  {step.note && <p class="wstep__note">{step.note}</p>}
+                </div>
+                <LifeScene name={step.life} src={step.lifeImage} alt={step.lifeAlt} class="wstep__life" />
+              </article>
+            ))
+          }
+        </div>
+
+        <div class="stage__controls">
+          <button class="btn btn--secondary" type="button" id="walk-prev">Back</button>
+          <button class="btn" type="button" id="walk-next">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <p class="walk-note">{W.disclaimer}</p>
+  </div>
+</section>
+
+<script>
+  const walk = document.getElementById('walk');
+  if (walk) {
+    const stepEls = Array.from(walk.querySelectorAll<HTMLElement>('.wstep'));
+    const fill = document.getElementById('walk-fill')!;
+    const text = document.getElementById('walk-text')!;
+    const prev = document.getElementById('walk-prev') as HTMLButtonElement;
+    const next = document.getElementById('walk-next') as HTMLButtonElement;
+    const total = stepEls.length;
+    let current = 0;
+
+    walk.classList.add('is-interactive');
+
+    function show(index: number, focus = true) {
+      current = Math.max(0, Math.min(index, total - 1));
+
+      stepEls.forEach((el, i) => {
+        el.hidden = i !== current;
+      });
+      fill.style.width = `${((current + 1) / total) * 100}%`;
+      text.textContent = `Step ${current + 1} of ${total}`;
+      prev.disabled = current === 0;
+      next.disabled = current === total - 1;
+
+      if (focus) {
+        stepEls[current].querySelector<HTMLElement>('h2')?.focus({ preventScroll: true });
+      }
+    }
+
+    next.addEventListener('click', () => show(current + 1));
+    prev.addEventListener('click', () => show(current - 1));
+
+    document.addEventListener('keydown', (event) => {
+      const tag = (event.target as HTMLElement)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+      if (event.key === 'ArrowRight' && !next.disabled) show(current + 1);
+      if (event.key === 'ArrowLeft' && !prev.disabled) show(current - 1);
+    });
+
+    show(0, false);
+  }
+</script>
+
+<style>
+  .walk-head {
+    max-width: var(--container-narrow);
+  }
+
+  .walk-lede {
+    margin-top: var(--space-lg);
+    color: var(--text-muted);
+    font-size: var(--step-1);
+  }
+
+  .walk-facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm) var(--space-lg);
+    margin: var(--space-xl) 0 0;
+    padding: 0;
+    list-style: none;
+    color: var(--text-muted);
+    font-size: var(--step--1);
+  }
+
+  .walk-facts strong {
+    color: var(--text);
+    font-family: var(--font-heading);
+  }
+
+  .walk {
+    margin-top: var(--space-2xl);
+  }
+
+  /* ----------------------------------------------------------------- stage */
+
+  .stage {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--bg);
+    box-shadow: var(--shadow);
+  }
+
+  .stage__bar {
+    padding: var(--space-lg) var(--space-lg) var(--space-md);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .prog {
+    height: 8px;
+    overflow: hidden;
+    border-radius: 100px;
+    background: var(--surface);
+  }
+
+  .prog__fill {
+    width: 0;
+    height: 100%;
+    border-radius: 100px;
+    background: var(--accent);
+    transition: width var(--transition);
+  }
+
+  .prog__text {
+    margin-top: var(--space-xs);
+    color: var(--text-faint);
+    font-size: var(--step--1);
+  }
+
+  .steps {
+    padding: var(--space-xl) var(--space-lg);
+  }
+
+  /* Without JavaScript the steps stack as a document. */
+  .wstep + .wstep {
+    margin-top: var(--space-2xl);
+    padding-top: var(--space-2xl);
+    border-top: 1px solid var(--border);
+  }
+
+  .is-interactive .wstep + .wstep {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .wstep {
+    display: grid;
+    gap: var(--space-xl);
+    grid-template-columns: 1fr;
+    align-items: center;
+  }
+
+  /* Phone: the illustration leads, then the app screen, then the words. */
+  .wstep__life {
+    order: -1;
+    max-height: 14rem;
+  }
+
+  /* Tablet: app screen and words side by side, illustration underneath. */
+  @media (min-width: 48rem) {
+    .wstep {
+      grid-template-columns: minmax(0, 14rem) minmax(0, 1fr);
+      gap: var(--space-2xl);
+    }
+
+    .wstep__life {
+      order: 0;
+      grid-column: 1 / -1;
+      max-height: 18rem;
+    }
+  }
+
+  /* Laptop: app screen, words, and a full-height illustration on the right. */
+  @media (min-width: 74rem) {
+    .wstep {
+      grid-template-columns: minmax(0, 13rem) minmax(0, 1fr) minmax(0, 22.5rem);
+      align-items: stretch;
+      min-height: 32rem;
+    }
+
+    .wstep__phone {
+      align-self: center;
+    }
+
+    .wstep__life {
+      grid-column: auto;
+      align-self: stretch;
+      max-height: none;
+    }
+  }
+
+  .wstep__count {
+    color: var(--accent);
+    font-family: var(--font-heading);
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .wstep__title {
+    margin-top: var(--space-sm);
+    font-size: var(--step-2);
+  }
+
+  .wstep__title:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 6px;
+  }
+
+  .wstep__voice {
+    margin-top: var(--space-lg);
+    padding-left: var(--space-lg);
+    border-left: 4px solid var(--accent);
+    color: var(--text);
+    font-size: var(--step-1);
+    font-style: italic;
+  }
+
+  .wstep__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    margin: var(--space-lg) 0 0;
+    padding: 0;
+    list-style: none;
+    color: var(--text-muted);
+  }
+
+  .wstep__body li {
+    position: relative;
+    padding-left: 1.4em;
+  }
+
+  .wstep__body li::before {
+    content: '';
+    position: absolute;
+    top: 0.62em;
+    left: 0;
+    width: 12px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--accent);
+  }
+
+  .wstep__note {
+    margin-top: var(--space-lg);
+    padding: var(--space-md) var(--space-lg);
+    border-radius: var(--radius);
+    background: var(--bg-raised);
+    font-weight: 600;
+  }
+
+  .stage__controls {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-md);
+    padding: var(--space-lg);
+    border-top: 1px solid var(--border);
+    background: var(--bg-raised);
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  }
+
+  .stage__controls button[disabled] {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .walk-note {
+    margin-top: var(--space-xl);
+    color: var(--text-faint);
+    font-size: var(--step--1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .prog__fill {
+      transition: none;
+    }
+  }
+</style>

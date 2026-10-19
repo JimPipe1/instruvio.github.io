@@ -1,0 +1,779 @@
+---
+/**
+ * TRAINING MODULE PLAYER
+ *
+ * The interactive shell shared by every training module: progress bar,
+ * one-step-at-a-time navigation, question marking, score and retry.
+ *
+ * It takes a module's metadata and sections as props, so a new module is a
+ * new content file plus a two-line page. See src/lib/training/ for the
+ * content files and src/pages/training/ for the pages.
+ *
+ * Without JavaScript the page still reads as a complete handout, top to
+ * bottom, with the correct answers marked.
+ */
+import Illustration from './Illustration.astro';
+import type { Section } from '../../lib/training/manual-handling.ts';
+
+interface Props {
+  module: {
+    title: string;
+    subtitle: string;
+    duration: string;
+    passMark: number;
+    disclaimer: string;
+  };
+  sections: Section[];
+}
+
+const { module: MODULE, sections: SECTIONS } = Astro.props;
+
+const TOTAL_SLIDES = SECTIONS.reduce((n, s) => n + s.slides.length, 0);
+const TOTAL_QUESTIONS = SECTIONS.reduce((n, s) => n + s.questions.length, 0);
+
+/* Flatten sections into the sequence of steps the learner moves through. */
+type Step =
+  | { kind: 'slide'; section: number; slide: Section['slides'][number] }
+  | { kind: 'question'; section: number; index: number; question: Section['questions'][number] };
+
+const steps: Step[] = [];
+let questionNumber = 0;
+
+SECTIONS.forEach((section, s) => {
+  section.slides.forEach((slide) => steps.push({ kind: 'slide', section: s, slide }));
+  section.questions.forEach((question) => {
+    steps.push({ kind: 'question', section: s, index: questionNumber, question });
+    questionNumber += 1;
+  });
+});
+
+const letters = ['A', 'B', 'C', 'D', 'E'];
+---
+
+  <section class="section">
+    <div class="container">
+      <div class="module-head">
+        <p class="eyebrow">Sample CPD module</p>
+        <h1>{MODULE.title}</h1>
+        <p class="module-lede">{MODULE.subtitle}</p>
+        <ul class="module-facts">
+          <li><strong>{TOTAL_SLIDES}</strong> steps</li>
+          <li><strong>{TOTAL_QUESTIONS}</strong> questions</li>
+          <li><strong>{MODULE.passMark}/{TOTAL_QUESTIONS}</strong> to pass</li>
+          <li><strong>{MODULE.duration}</strong></li>
+        </ul>
+      </div>
+
+      <div class="module" id="module" data-pass={MODULE.passMark} data-total={TOTAL_QUESTIONS}>
+        <!-- ------------------------------------------------------ progress -->
+        <div class="module__bar">
+          <ol class="track" aria-hidden="true">
+            {
+              SECTIONS.map((section, i) => (
+                <li class="track__item" data-section={i}>
+                  <span class="track__dot" />
+                  <span class="track__label">{section.title}</span>
+                </li>
+              ))
+            }
+          </ol>
+          <div class="prog">
+            <div class="prog__fill" id="prog-fill"></div>
+          </div>
+          <p class="prog__text" id="prog-text" aria-live="polite">
+            Step 1 of {steps.length}
+          </p>
+        </div>
+
+        <!-- --------------------------------------------------------- steps -->
+        <div class="steps" id="steps">
+          {
+            steps.map((step, i) =>
+              step.kind === 'slide' ? (
+                <article
+                  class="step step--slide"
+                  data-step={i}
+                  data-kind="slide"
+                  data-section={step.section}
+                >
+                  <div class="slide">
+                    <Illustration
+                        name={step.slide.graphic}
+                        src={step.slide.image}
+                        alt={step.slide.alt}
+                        class="slide__art"
+                      />
+                    <div class="slide__text">
+                      <p class="slide__section">{SECTIONS[step.section].title}</p>
+                      <h2 class="slide__title" tabindex="-1">{step.slide.title}</h2>
+                      <ul class="slide__body">
+                        {step.slide.body.map((line) => (
+                          <li>{line}</li>
+                        ))}
+                      </ul>
+                      {step.slide.callout && <p class="slide__callout">{step.slide.callout}</p>}
+                    </div>
+                  </div>
+                </article>
+              ) : (
+                <article
+                  class="step step--question"
+                  data-step={i}
+                  data-kind="question"
+                  data-section={step.section}
+                  data-question={step.index}
+                  data-answer={step.question.answer}
+                >
+                  <div class="quiz">
+                    <p class="slide__section">
+                      {SECTIONS[step.section].title} · Question {step.index + 1} of {TOTAL_QUESTIONS}
+                    </p>
+                    <h2 class="quiz__prompt" tabindex="-1">{step.question.prompt}</h2>
+
+                    <div class="quiz__options" role="group" aria-label="Choose one answer">
+                      {step.question.options.map((option, o) => (
+                        <button
+                          class="option"
+                          type="button"
+                          data-option={o}
+                          data-correct={o === step.question.answer ? 'true' : 'false'}
+                        >
+                          <span class="option__letter">{letters[o]}</span>
+                          <span class="option__text">{option}</span>
+                          <span class="option__mark" aria-hidden="true"></span>
+                        </button>
+                      ))}
+                    </div>
+
+                    <p class="quiz__feedback" data-feedback aria-live="polite">
+                      <span class="quiz__verdict" data-verdict></span>
+                      {step.question.why}
+                    </p>
+                  </div>
+                </article>
+              ),
+            )
+          }
+
+          <!-- ------------------------------------------------------ result -->
+          <article class="step step--result" data-step={steps.length} data-kind="result">
+            <div class="result">
+              <h2 class="result__title" id="result-title" tabindex="-1">Your score</h2>
+              <p class="result__score"><span id="result-score">0</span> / {TOTAL_QUESTIONS}</p>
+              <p class="result__verdict" id="result-verdict"></p>
+              <ul class="result__breakdown" id="result-breakdown"></ul>
+              <div class="result__actions">
+                <button class="btn" type="button" id="retry-missed" hidden>Retry the ones I missed</button>
+                <button class="btn btn--secondary" type="button" id="restart">Start again</button>
+              </div>
+              <p class="result__note">{MODULE.disclaimer}</p>
+            </div>
+          </article>
+        </div>
+
+        <!-- ------------------------------------------------------ controls -->
+        <div class="module__controls">
+          <button class="btn btn--secondary" type="button" id="prev">Back</button>
+          <button class="btn" type="button" id="next">Next</button>
+        </div>
+      </div>
+
+      <noscript>
+        <p class="module-note">
+          This module needs JavaScript to run as an interactive course. With it switched off, every
+          step is shown above as a handout and the correct answer to each question is marked.
+        </p>
+      </noscript>
+    </div>
+  </section>
+
+<script>
+  const module = document.getElementById('module');
+  if (module) {
+    const stepEls = Array.from(module.querySelectorAll<HTMLElement>('.step'));
+    const fill = document.getElementById('prog-fill')!;
+    const text = document.getElementById('prog-text')!;
+    const prev = document.getElementById('prev') as HTMLButtonElement;
+    const next = document.getElementById('next') as HTMLButtonElement;
+    const trackItems = Array.from(module.querySelectorAll<HTMLElement>('.track__item'));
+    const passMark = Number(module.dataset.pass);
+    const total = Number(module.dataset.total);
+
+    /** chosen option per question, by question number */
+    const answers = new Map<number, number>();
+    /** when set, only these step indexes are visited (the retry run) */
+    let queue: number[] | null = null;
+    let current = 0;
+
+    module.classList.add('is-interactive');
+
+    const resultIndex = stepEls.length - 1;
+
+    function sequence(): number[] {
+      return queue ?? stepEls.map((_, i) => i);
+    }
+
+    function isAnswered(el: HTMLElement) {
+      return el.dataset.kind !== 'question' || el.classList.contains('is-answered');
+    }
+
+    function show(position: number, focus = true) {
+      const order = sequence();
+      current = Math.max(0, Math.min(position, order.length - 1));
+      const index = order[current];
+
+      stepEls.forEach((el, i) => {
+        el.hidden = i !== index;
+      });
+
+      const el = stepEls[index];
+      const section = Number(el.dataset.section ?? -1);
+      trackItems.forEach((item, i) => {
+        item.classList.toggle('is-current', i === section);
+        item.classList.toggle('is-done', section > i || index === resultIndex);
+      });
+
+      /* The result screen is the last entry in the sequence, so the count of
+         teaching steps is one less than the sequence length. */
+      const shown = current + 1;
+      const teaching = Math.max(1, order.length - 1);
+      fill.style.width = `${Math.min(100, (shown / order.length) * 100)}%`;
+      text.textContent =
+        el.dataset.kind === 'result' ? 'Finished' : `Step ${shown} of ${teaching}`;
+
+      prev.disabled = current === 0;
+      next.hidden = el.dataset.kind === 'result';
+      next.disabled = !isAnswered(el);
+      next.textContent = current === order.length - 1 ? 'See my score' : 'Next';
+
+      if (el.dataset.kind === 'result') showResult();
+
+      if (focus) {
+        const heading = el.querySelector<HTMLElement>('h2');
+        heading?.focus({ preventScroll: true });
+        module.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      }
+    }
+
+    /* ---------------------------------------------------------- questions */
+    module.querySelectorAll<HTMLElement>('.step--question').forEach((step) => {
+      const qNumber = Number(step.dataset.question);
+      const options = Array.from(step.querySelectorAll<HTMLButtonElement>('.option'));
+
+      options.forEach((option) => {
+        option.addEventListener('click', () => {
+          if (step.classList.contains('is-answered')) return;
+
+          const chosen = Number(option.dataset.option);
+          const correct = option.dataset.correct === 'true';
+          answers.set(qNumber, chosen);
+
+          step.classList.add('is-answered');
+          options.forEach((other) => {
+            other.classList.add('is-locked');
+            if (other.dataset.correct === 'true') other.classList.add('is-correct');
+          });
+          option.classList.add(correct ? 'is-chosen-right' : 'is-chosen-wrong');
+
+          const verdict = step.querySelector<HTMLElement>('[data-verdict]');
+          if (verdict) verdict.textContent = correct ? 'Correct. ' : 'Not quite. ';
+          step.querySelector<HTMLElement>('[data-feedback]')?.classList.add('is-shown');
+
+          next.disabled = false;
+        });
+      });
+    });
+
+    /* ------------------------------------------------------------- result */
+    function showResult() {
+      const score = Array.from(answers.entries()).filter(([q, chosen]) => {
+        const step = module.querySelector<HTMLElement>(`.step--question[data-question="${q}"]`);
+        return step && Number(step.dataset.answer) === chosen;
+      }).length;
+
+      document.getElementById('result-score')!.textContent = String(score);
+
+      const passed = score >= passMark;
+      const verdict = document.getElementById('result-verdict')!;
+      verdict.textContent = passed
+        ? `Pass. You needed ${passMark} out of ${total}.`
+        : `Not passed this time. You need ${passMark} out of ${total}.`;
+      verdict.classList.toggle('is-pass', passed);
+      verdict.classList.toggle('is-fail', !passed);
+
+      const breakdown = document.getElementById('result-breakdown')!;
+      breakdown.innerHTML = '';
+      trackItems.forEach((item, s) => {
+        const questions = Array.from(
+          module.querySelectorAll<HTMLElement>(`.step--question[data-section="${s}"]`),
+        );
+        const right = questions.filter((q) => {
+          const chosen = answers.get(Number(q.dataset.question));
+          return chosen !== undefined && chosen === Number(q.dataset.answer);
+        }).length;
+        const li = document.createElement('li');
+        li.innerHTML = `<span>${item.querySelector('.track__label')?.textContent ?? ''}</span><strong>${right} / ${questions.length}</strong>`;
+        breakdown.appendChild(li);
+      });
+
+      const missed = missedSteps();
+      (document.getElementById('retry-missed') as HTMLButtonElement).hidden = missed.length === 0;
+    }
+
+    function missedSteps(): number[] {
+      return stepEls
+        .map((el, i) => ({ el, i }))
+        .filter(({ el }) => {
+          if (el.dataset.kind !== 'question') return false;
+          const chosen = answers.get(Number(el.dataset.question));
+          return chosen === undefined || chosen !== Number(el.dataset.answer);
+        })
+        .map(({ i }) => i);
+    }
+
+    function resetQuestion(el: HTMLElement) {
+      el.classList.remove('is-answered');
+      el.querySelectorAll<HTMLElement>('.option').forEach((option) => {
+        option.classList.remove('is-locked', 'is-correct', 'is-chosen-right', 'is-chosen-wrong');
+      });
+      el.querySelector<HTMLElement>('[data-feedback]')?.classList.remove('is-shown');
+      const verdict = el.querySelector<HTMLElement>('[data-verdict]');
+      if (verdict) verdict.textContent = '';
+    }
+
+    document.getElementById('retry-missed')?.addEventListener('click', () => {
+      const missed = missedSteps();
+      if (!missed.length) return;
+      missed.forEach((i) => {
+        answers.delete(Number(stepEls[i].dataset.question));
+        resetQuestion(stepEls[i]);
+      });
+      queue = [...missed, resultIndex];
+      show(0);
+    });
+
+    document.getElementById('restart')?.addEventListener('click', () => {
+      answers.clear();
+      queue = null;
+      stepEls.forEach((el) => el.dataset.kind === 'question' && resetQuestion(el));
+      show(0);
+    });
+
+    /* ------------------------------------------------------------ controls */
+    next.addEventListener('click', () => show(current + 1));
+    prev.addEventListener('click', () => show(current - 1));
+
+    document.addEventListener('keydown', (event) => {
+      const tag = (event.target as HTMLElement)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+      if (event.key === 'ArrowRight' && !next.disabled && !next.hidden) show(current + 1);
+      if (event.key === 'ArrowLeft' && !prev.disabled) show(current - 1);
+    });
+
+    show(0, false);
+  }
+</script>
+
+<style>
+  .module-head {
+    max-width: var(--container-narrow);
+  }
+
+  .module-lede {
+    margin-top: var(--space-lg);
+    color: var(--text-muted);
+    font-size: var(--step-1);
+  }
+
+  .module-facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm) var(--space-lg);
+    margin: var(--space-xl) 0 0;
+    padding: 0;
+    list-style: none;
+    color: var(--text-muted);
+    font-size: var(--step--1);
+  }
+
+  .module-facts strong {
+    color: var(--text);
+    font-family: var(--font-heading);
+  }
+
+  .module {
+    margin-top: var(--space-2xl);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--bg);
+    box-shadow: var(--shadow);
+  }
+
+  /* ------------------------------------------------------------- progress */
+
+  .module__bar {
+    padding: var(--space-lg) var(--space-lg) var(--space-md);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .track {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs) var(--space-lg);
+    margin: 0 0 var(--space-md);
+    padding: 0;
+    list-style: none;
+  }
+
+  .track__item {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    color: var(--text-faint);
+    font-size: var(--step--1);
+  }
+
+  .track__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--border-strong);
+  }
+
+  .track__item.is-done .track__dot {
+    background: var(--ok);
+  }
+
+  .track__item.is-current {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .track__item.is-current .track__dot {
+    background: var(--accent);
+  }
+
+  .prog {
+    height: 8px;
+    overflow: hidden;
+    border-radius: 100px;
+    background: var(--surface);
+  }
+
+  .prog__fill {
+    width: 0;
+    height: 100%;
+    border-radius: 100px;
+    background: var(--accent);
+    transition: width var(--transition);
+  }
+
+  .prog__text {
+    margin-top: var(--space-xs);
+    color: var(--text-faint);
+    font-size: var(--step--1);
+  }
+
+  /* ---------------------------------------------------------------- steps */
+
+  .steps {
+    padding: var(--space-xl) var(--space-lg);
+  }
+
+  /* Without JavaScript every step stays in place as a handout. */
+  .step + .step {
+    margin-top: var(--space-2xl);
+    padding-top: var(--space-2xl);
+    border-top: 1px solid var(--border);
+  }
+
+  .is-interactive .step + .step {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .slide {
+    display: grid;
+    gap: var(--space-xl);
+    align-items: center;
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 56rem) {
+    .slide {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: var(--space-2xl);
+    }
+  }
+
+  .slide__section {
+    color: var(--accent);
+    font-family: var(--font-heading);
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .slide__title,
+  .quiz__prompt {
+    margin-top: var(--space-sm);
+    font-size: var(--step-2);
+  }
+
+  .slide__title:focus-visible,
+  .quiz__prompt:focus-visible,
+  .result__title:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 6px;
+  }
+
+  .slide__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    margin: var(--space-lg) 0 0;
+    padding: 0;
+    list-style: none;
+    color: var(--text-muted);
+  }
+
+  .slide__body li {
+    position: relative;
+    padding-left: 1.4em;
+  }
+
+  .slide__body li::before {
+    content: '';
+    position: absolute;
+    top: 0.62em;
+    left: 0;
+    width: 12px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--accent);
+  }
+
+  .slide__callout {
+    margin-top: var(--space-lg);
+    padding: var(--space-md) var(--space-lg);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    background: var(--bg-raised);
+    font-weight: 600;
+  }
+
+  /* ------------------------------------------------------------ questions */
+
+  .quiz {
+    max-width: var(--container-narrow);
+  }
+
+  .quiz__options {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    margin-top: var(--space-xl);
+  }
+
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-md);
+    width: 100%;
+    min-height: 3.25rem;
+    padding: var(--space-md) var(--space-lg);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--text);
+    text-align: left;
+    cursor: pointer;
+    transition:
+      border-color var(--transition),
+      background var(--transition);
+  }
+
+  .option:hover:not(.is-locked) {
+    border-color: var(--accent);
+    background: var(--surface);
+  }
+
+  .option__letter {
+    flex: none;
+    display: grid;
+    place-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    background: var(--surface);
+    font-family: var(--font-heading);
+    font-size: var(--step--1);
+    font-weight: 700;
+  }
+
+  .option__text {
+    flex: 1;
+  }
+
+  .option__mark {
+    flex: none;
+    font-family: var(--font-heading);
+    font-weight: 700;
+  }
+
+  .option.is-locked {
+    cursor: default;
+  }
+
+  /*
+   * Right and wrong use --ok and --err rather than the brand colours, and both
+   * carry the word as well as the colour, so the answer never rests on hue
+   * alone. The tint is mixed into --bg, which is black here, so the panel
+   * darkens into the page instead of lighting up.
+   */
+  .option.is-correct {
+    border-color: var(--ok);
+    background: color-mix(in srgb, var(--ok) 14%, var(--bg));
+  }
+
+  .option.is-correct .option__letter {
+    background: var(--ok);
+    color: var(--accent-ink);
+  }
+
+  .option.is-correct .option__mark::after {
+    content: 'Correct';
+    color: var(--ok);
+  }
+
+  .option.is-chosen-wrong {
+    border-color: var(--err);
+    background: color-mix(in srgb, var(--err) 12%, var(--bg));
+  }
+
+  .option.is-chosen-wrong .option__letter {
+    background: var(--err);
+    color: var(--accent-ink);
+  }
+
+  .option.is-chosen-wrong .option__mark::after {
+    content: 'Your answer';
+    color: var(--err);
+  }
+
+  .quiz__feedback {
+    margin-top: var(--space-lg);
+    padding: var(--space-md) var(--space-lg);
+    border-radius: var(--radius);
+    background: var(--bg-raised);
+    color: var(--text-muted);
+    font-size: var(--step--1);
+  }
+
+  .is-interactive .quiz__feedback {
+    display: none;
+  }
+
+  .is-interactive .quiz__feedback.is-shown {
+    display: block;
+  }
+
+  .quiz__verdict {
+    color: var(--text);
+    font-weight: 700;
+  }
+
+  /* --------------------------------------------------------------- result */
+
+  .result {
+    max-width: var(--container-narrow);
+    text-align: center;
+    margin-inline: auto;
+  }
+
+  .result__score {
+    margin-top: var(--space-md);
+    font-family: var(--font-heading);
+    font-size: var(--step-5);
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .result__verdict {
+    margin-top: var(--space-sm);
+    font-weight: 600;
+  }
+
+  .result__verdict.is-pass {
+    color: var(--ok);
+  }
+
+  .result__verdict.is-fail {
+    color: var(--err);
+  }
+
+  .result__breakdown {
+    margin: var(--space-xl) 0 0;
+    padding: 0;
+    list-style: none;
+    text-align: left;
+  }
+
+  .result__breakdown li {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-md);
+    padding: var(--space-sm) 0;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+
+  .result__breakdown strong {
+    color: var(--text);
+    font-family: var(--font-heading);
+  }
+
+  .result__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-md);
+    margin-top: var(--space-xl);
+  }
+
+  .result__note {
+    margin-top: var(--space-xl);
+    color: var(--text-faint);
+    font-size: var(--step--1);
+  }
+
+  /* ------------------------------------------------------------- controls */
+
+  .module__controls {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-md);
+    padding: var(--space-lg);
+    border-top: 1px solid var(--border);
+    background: var(--bg-raised);
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  }
+
+  .module__controls button[disabled] {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .module-note {
+    margin-top: var(--space-lg);
+    color: var(--text-muted);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .prog__fill {
+      transition: none;
+    }
+  }
+</style>
